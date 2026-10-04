@@ -1,0 +1,5 @@
+data/row/*
+data/cleand/*
+
+!data/row/.gitkeep
+!data/cleand/.gitkeep
