@@ -20,9 +20,9 @@ and identify patterns that can support business decisions.
 - Is there a relationship between product ratings and sales performance?
 - What patterns or opportunities can be identified from the data?
 
-To clean, analyze and visualize the data this project will use the follwong tools:
-
 ## Tools
+
+To clean, analyze and visualize the data this project will use the follwong tools:
 - Python
 - SQL
 - Power BI
