@@ -38,3 +38,14 @@ clean_df["ship_postal_code"] = (
 
 print(clean_df.columns.tolist())
 print(clean_df.dtypes)
+
+
+# -------------------------
+# Handle Missing Values
+# -------------------------
+
+# Replace expected missing fulfilled_by values
+clean_df["fulfilled_by"] = clean_df["fulfilled_by"].fillna("Not Applicable")
+
+# Replace missing promotion IDs with a descriptive value
+clean_df["promotion_ids"] = clean_df["promotion_ids"].fillna("No Promotion ID")
