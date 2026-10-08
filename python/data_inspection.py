@@ -126,6 +126,10 @@ print("\nNumeric Summary:")
 print(raw_df.describe())
 
 
+# -------------------------
+# Shipping Location Investigation
+# -------------------------
+
 # Check if shipping location fields are missing together
 shipping_columns = [
     "ship-city",
@@ -140,6 +144,10 @@ print(
     .all(axis=1)
     .sum()
 )
+
+# -------------------------
+# Courier Status Investigation
+# -------------------------
 
 # Check Status of rows with missing Courier Status
 missing_courier = raw_df[raw_df["Courier Status"].isnull()]
