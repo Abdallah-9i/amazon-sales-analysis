@@ -60,3 +60,30 @@ The inspection included:
 - Zero-amount transactions could not be fully explained by promotions or zero quantity and were therefore retained.
 - Unusually high quantity and amount values were inspected and appeared plausible, so they were not removed.
 - The `Date` column was stored as text and required conversion to datetime.
+
+## Data Cleaning
+
+The dataset was cleaned using Python and Pandas to improve data quality and prepare it for analysis.
+
+The cleaning process included:
+
+- Removing unnecessary technical columns such as `index` and `Unnamed: 22`
+- Standardizing column names using lowercase and snake_case formatting
+- Converting the `Date` column to datetime format
+- Converting `ship_postal_code` to string format
+- Replacing expected missing `fulfilled_by` values with `Not Applicable`
+- Replacing missing promotion IDs with `No Promotion ID`
+- Replacing missing shipping location values with `Unknown`
+- Handling missing `Courier Status` values based on order status
+- Keeping missing `amount` and `currency` values as null because their true values were unknown
+- Removing fully duplicated records
+- Performing final validation on shape, missing values, data types, and duplicates
+
+### Cleaning Results
+
+- The cleaned dataset contains 128,969 rows and 22 columns.
+- Six duplicate records were removed.
+- Remaining missing values are limited to `amount` and `currency`.
+- Column names were standardized.
+- Date and postal code data types were corrected.
+- No duplicate rows remain after cleaning.
