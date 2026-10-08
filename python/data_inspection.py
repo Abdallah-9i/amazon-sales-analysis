@@ -140,3 +140,17 @@ print(
     .all(axis=1)
     .sum()
 )
+
+# Check Status of rows with missing Courier Status
+missing_courier = raw_df[raw_df["Courier Status"].isnull()]
+
+print(
+    missing_courier["Status"]
+    .value_counts()
+)
+
+print(
+    missing_courier[
+        missing_courier["Status"] != "Cancelled"
+    ][["Order ID", "Status", "Courier Status"]]
+)

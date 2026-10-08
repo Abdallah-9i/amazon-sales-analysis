@@ -59,3 +59,13 @@ shipping_columns = [
 ]
 
 clean_df[shipping_columns] = clean_df[shipping_columns].fillna("Unknown")
+
+# Set missing Courier Status for cancelled orders
+clean_df.loc[
+    (clean_df["status"] == "Cancelled") &
+    (clean_df["courier_status"].isnull()),
+    "courier_status"
+] = "Not Applicable"
+
+# Set remaining missing Courier Status values
+clean_df["courier_status"] = clean_df["courier_status"].fillna("Unknown")
