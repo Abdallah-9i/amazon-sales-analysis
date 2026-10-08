@@ -29,7 +29,7 @@ To clean, analyze and visualize the data this project will use the follwong tool
 - Excel
 - Git & Github
 
-- ## Data Inspection
+## Data Inspection
 
 The raw dataset was inspected using Python and Pandas before cleaning.
 
@@ -45,7 +45,7 @@ The inspection included:
 - Reviewing distributions of key columns such as `Status`, `Category`, `Qty`, and `B2B`
 - Generating summary statistics for numeric columns
 
-- ### Key Findings
+### Key Findings
 
 - The dataset contains 128,975 rows and 24 columns.
 - No fully duplicated rows were found.
