@@ -124,3 +124,19 @@ print("\n" + raw_df["Date"].head().to_string(index=False))
 # Summary statistics for numeric columns
 print("\nNumeric Summary:")
 print(raw_df.describe())
+
+
+# Check if shipping location fields are missing together
+shipping_columns = [
+    "ship-city",
+    "ship-state",
+    "ship-postal-code",
+    "ship-country"
+]
+
+print(
+    raw_df[shipping_columns]
+    .isnull()
+    .all(axis=1)
+    .sum()
+)

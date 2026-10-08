@@ -49,3 +49,13 @@ clean_df["fulfilled_by"] = clean_df["fulfilled_by"].fillna("Not Applicable")
 
 # Replace missing promotion IDs with a descriptive value
 clean_df["promotion_ids"] = clean_df["promotion_ids"].fillna("No Promotion ID")
+
+# Replace missing shipping location values
+shipping_columns = [
+    "ship_city",
+    "ship_state",
+    "ship_postal_code",
+    "ship_country"
+]
+
+clean_df[shipping_columns] = clean_df[shipping_columns].fillna("Unknown")
