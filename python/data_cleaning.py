@@ -5,8 +5,10 @@ import pandas as pd
 # -------------------------
 
 # Load the raw dataset
-raw_df = pd.read_csv("../data/raw/Amazon Sale Report.csv")
-
+raw_df = pd.read_csv(
+    "../data/raw/Amazon Sale Report.csv",
+    low_memory=False
+)
 # Create a copy for cleaning
 clean_df = raw_df.copy()
 
@@ -15,7 +17,6 @@ clean_df = raw_df.copy()
 # Remove Unnecessary Columns
 # -------------------------
 
-# Remove unnecessary columns
 clean_df = clean_df.drop(columns=["index", "Unnamed: 22"])
 
 
@@ -34,6 +35,14 @@ clean_df.columns = (
 
 
 # -------------------------
+# Remove Duplicate Rows
+# -------------------------
+
+# Remove fully duplicated records
+clean_df = clean_df.drop_duplicates()
+
+
+# -------------------------
 # Fix Data Types
 # -------------------------
 
@@ -44,20 +53,12 @@ clean_df["date"] = pd.to_datetime(
     errors="coerce"
 )
 
-# Check if any conversion errors resulted in missing date values
-print(clean_df["date"].isnull().sum())
-
 # Convert postal code to string
 clean_df["ship_postal_code"] = (
     clean_df["ship_postal_code"]
     .astype("Int64")
     .astype("string")
 )
-
-# Verify column names and data types
-print(clean_df.columns.tolist())
-print(clean_df.dtypes)
-
 
 # -------------------------
 # Handle Missing Values
@@ -91,3 +92,40 @@ clean_df["courier_status"] = clean_df["courier_status"].fillna("Unknown")
 
 # Keep missing amount and currency values as NaN because their true values are unknown.
 # They should not be replaced with zero because zero is already a valid recorded value in the dataset.
+
+
+# -------------------------
+# Final Validation
+# -------------------------
+
+# Check final dataset shape
+print("\nFinal Shape:")
+print(clean_df.shape)
+
+# Check remaining missing values
+print("\nRemaining Missing Values:")
+missing_values = clean_df.isnull().sum()
+print(missing_values[missing_values > 0])
+
+# Check for duplicate rows
+print("\nDuplicates:")
+print(clean_df.duplicated().sum())
+
+# Check final data types
+print("\nFinal Data Types:")
+print(clean_df.dtypes)
+
+# Preview cleaned data
+print("\nCleaned Data Preview:")
+print(clean_df.head())
+
+# -------------------------
+# Save Cleaned Dataset
+# -------------------------
+
+clean_df.to_csv(
+    "../data/cleaned/amazon_sales_cleaned.csv",
+    index=False
+)
+
+print("\nCleaned dataset saved successfully.")

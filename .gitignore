@@ -1,5 +1,5 @@
 data/row/*
-data/cleand/*
+data/cleaned/*
 
 !data/row/.gitkeep
-!data/cleand/.gitkeep
+!data/cleaned/.gitkeep

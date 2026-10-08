@@ -1,8 +1,10 @@
 import pandas as pd
 
 # Load raw dataset
-raw_df = pd.read_csv("../data/raw/Amazon Sale Report.csv")
-
+raw_df = pd.read_csv(
+    "../data/raw/Amazon Sale Report.csv",
+    low_memory=False
+)
 # -------------------------
 # Basic Dataset Inspection
 # -------------------------
@@ -27,9 +29,11 @@ print(raw_df.dtypes)
 print("\nMissing Values:")
 print(raw_df.isnull().sum())
 
-# Duplicate rows
+# Check duplicates excluding technical columns
+duplicate_check = raw_df.drop(columns=["index", "Unnamed: 22"])
+
 print("\nDuplicates:")
-print(raw_df.duplicated().sum())
+print(duplicate_check.duplicated().sum())
 
 
 # -------------------------
@@ -162,3 +166,59 @@ print(
         missing_courier["Status"] != "Cancelled"
     ][["Order ID", "Status", "Courier Status"]]
 )
+
+
+# -------------------------
+# Zero Amount Investigation
+# -------------------------
+
+# Check whether zero-amount orders have recorded promotion IDs
+zero_amount = raw_df[raw_df["Amount"] == 0]
+
+print("\nZero-amount orders:")
+print("Total:", len(zero_amount))
+print("With Promotion ID:", zero_amount["promotion-ids"].notnull().sum())
+print("Without Promotion ID:", zero_amount["promotion-ids"].isnull().sum())
+
+# Only one-third of zero-amount records have a Promotion ID,
+# so promotions do not fully explain the zero Amount values.
+
+# Check Qty distribution for zero-amount orders
+print(
+    zero_amount["Qty"]
+    .value_counts()
+    .sort_index()
+)
+
+# All zero-amount records have Qty = 1, so zero Amount values are not caused by zero quantity.
+# The dataset does not provide enough information to determine the exact reason for these values.
+
+# -------------------------
+# Outlier Investigation
+# -------------------------
+
+# Inspect unusually high quantity values
+high_qty = raw_df[raw_df["Qty"] > 5]
+
+print("\nHigh Quantity Orders:")
+print(
+    high_qty[
+        ["Order ID", "Status", "Category", "Qty", "Amount"]
+    ]
+    .sort_values("Qty", ascending=False)
+    .to_string(index=False)
+)
+
+# Inspect the highest Amount values
+print("\nHighest Amount Orders:")
+print(
+    raw_df[
+        ["Order ID", "Status", "Category", "Qty", "Amount"]
+    ]
+    .sort_values("Amount", ascending=False)
+    .head(10)
+    .to_string(index=False)
+)
+
+# High Qty and Amount values appear plausible and are not removed.
+# Some high-quantity records have missing Amount values and are kept unchanged.
