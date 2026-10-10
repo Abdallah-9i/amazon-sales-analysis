@@ -90,3 +90,40 @@ print(round(delivered_amount, 2))
 delivered_df = df[
     df["status"] == "Shipped - Delivered to Buyer"
 ].copy()
+
+# Create a subset for non-cancelled records
+non_cancelled_df = df[
+    df["status"] != "Cancelled"
+].copy()
+
+# -------------------------
+# Category Analysis
+# -------------------------
+
+# Analyze category activity using non-cancelled records
+category_activity = (
+    non_cancelled_df.groupby("category")
+    .agg(
+        unique_orders=("order_id", "nunique"),
+        total_quantity=("qty", "sum")
+    )
+    .sort_values("unique_orders", ascending=False)
+)
+
+print("\nCategory Activity:")
+print(category_activity)
+
+# Analyze delivered amount by category
+category_delivered = (
+    delivered_df.groupby("category")
+    .agg(
+        delivered_orders=("order_id", "nunique"),
+        delivered_quantity=("qty", "sum"),
+        delivered_amount=("amount", "sum"),
+        average_amount=("amount", "mean")
+    )
+    .sort_values("delivered_amount", ascending=False)
+)
+
+print("\nDelivered Category Performance:")
+print(category_delivered)
