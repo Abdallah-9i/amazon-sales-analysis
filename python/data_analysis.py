@@ -127,3 +127,69 @@ category_delivered = (
 
 print("\nDelivered Category Performance:")
 print(category_delivered)
+
+
+# -------------------------
+# Sales Trends Over Time
+# -------------------------
+
+# Extract year-month from the date column for monthly analysis
+delivered_df["month"] = (
+    delivered_df["date"]
+    .dt.to_period("M")
+    .astype(str)
+)
+
+# Aggregate delivered orders, quantity, and amount by month
+monthly_trends = (
+    delivered_df.groupby("month")
+    .agg(
+        delivered_orders=("order_id", "nunique"),
+        delivered_quantity=("qty", "sum"),
+        delivered_amount=("amount", "sum")
+    )
+    .reset_index()
+)
+
+print("\nMonthly Delivered Trends:")
+print(monthly_trends)
+
+# Check delivered date coverage within each month
+print("\nMonthly Date Coverage:")
+print(
+    delivered_df.groupby("month")["date"]
+    .agg(["min", "max", "nunique"])
+)
+
+# Compare complete months only
+complete_months = monthly_trends[
+    monthly_trends["month"].isin(["2022-04", "2022-05"])
+].copy()
+
+complete_months["orders_change_pct"] = (
+    complete_months["delivered_orders"]
+    .pct_change()
+    .mul(100)
+)
+
+complete_months["amount_change_pct"] = (
+    complete_months["delivered_amount"]
+    .pct_change()
+    .mul(100)
+)
+
+print("\nComplete Month Comparison:")
+print(complete_months.round(2))
+
+# Calculate average amount per delivered order
+complete_months["average_amount_per_order"] = (
+    complete_months["delivered_amount"]
+    / complete_months["delivered_orders"]
+)
+
+print("\nAverage Amount per Delivered Order:")
+print(
+    complete_months[
+        ["month", "average_amount_per_order"]
+    ].round(2)
+)
