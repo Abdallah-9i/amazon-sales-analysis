@@ -193,3 +193,45 @@ print(
         ["month", "average_amount_per_order"]
     ].round(2)
 )
+
+# -------------------------
+# Quantity Analysis
+# -------------------------
+
+# Calculate total quantity for each non-cancelled order
+quantity_per_order = (
+    non_cancelled_df.groupby("order_id")["qty"]
+    .sum()
+)
+
+print("\nQuantity per Order Summary:")
+print(quantity_per_order.describe())
+
+# Count single-unit and multi-unit orders
+single_unit_orders = (quantity_per_order == 1).sum()
+multi_unit_orders = (quantity_per_order > 1).sum()
+
+print("\nSingle-Unit Orders:")
+print(single_unit_orders)
+
+print("\nMulti-Unit Orders:")
+print(multi_unit_orders)
+
+# Calculate order quantity percentages
+single_unit_pct = (
+    single_unit_orders
+    / len(quantity_per_order)
+    * 100
+)
+
+multi_unit_pct = (
+    multi_unit_orders
+    / len(quantity_per_order)
+    * 100
+)
+
+print("\nSingle-Unit Orders Percentage:")
+print(round(single_unit_pct, 2))
+
+print("\nMulti-Unit Orders Percentage:")
+print(round(multi_unit_pct, 2))
