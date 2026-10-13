@@ -235,3 +235,29 @@ print(round(single_unit_pct, 2))
 
 print("\nMulti-Unit Orders Percentage:")
 print(round(multi_unit_pct, 2))
+
+# -------------------------
+# B2B Analysis
+# -------------------------
+
+# Analyze delivered performance by B2B segment
+b2b_delivered = (
+    delivered_df.groupby("b2b")
+    .agg(
+        delivered_orders=("order_id", "nunique"),
+        delivered_quantity=("qty", "sum"),
+        delivered_amount=("amount", "sum"),
+        average_amount=("amount", "mean")
+    )
+    .reset_index()
+)
+
+# Calculate delivered order share
+b2b_delivered["order_share_pct"] = (
+    b2b_delivered["delivered_orders"]
+    / b2b_delivered["delivered_orders"].sum()
+    * 100
+)
+
+print("\nDelivered B2B Performance:")
+print(b2b_delivered.round(2))
