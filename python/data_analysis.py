@@ -260,4 +260,41 @@ b2b_delivered["order_share_pct"] = (
 )
 
 print("\nDelivered B2B Performance:")
-print(b2b_delivered.round(2))
+print(b2b_delivered.round(2).to_string(index=False))
+
+
+# -------------------------
+# Fulfilment Analysis
+# -------------------------
+
+# Compare non-cancelled activity by fulfilment method
+fulfilment_analysis = (
+    non_cancelled_df.groupby("fulfilment")
+    .agg(
+        unique_orders=("order_id", "nunique"),
+        total_quantity=("qty", "sum"),
+        recorded_amount=("amount", "sum"),
+        average_amount=("amount", "mean")
+    )
+    .reset_index()
+)
+
+# Calculate share of non-cancelled orders
+fulfilment_analysis["order_share_pct"] = (
+    fulfilment_analysis["unique_orders"]
+    / fulfilment_analysis["unique_orders"].sum()
+    * 100
+)
+
+print("\nNon-Cancelled Fulfilment Performance:")
+print(
+    fulfilment_analysis.round(2).to_string(index=False)
+)
+
+print("\nFulfilment by Status:")
+print(
+    pd.crosstab(
+        df["fulfilment"],
+        df["status"]
+    )
+)
