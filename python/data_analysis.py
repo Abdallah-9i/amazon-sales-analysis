@@ -306,3 +306,73 @@ print(
         df["status"]
     )
 )
+# -------------------------
+# Geographic Analysis
+# -------------------------
+
+# Prepare geographic data from non-cancelled records
+geo_df = non_cancelled_df[
+    (non_cancelled_df["ship_state"] != "Unknown")
+    & (non_cancelled_df["ship_city"] != "Unknown")
+].copy()
+
+# Standardize geographic values
+geo_df["ship_state"] = (
+    geo_df["ship_state"]
+    .str.strip()
+    .str.upper()
+)
+
+geo_df["ship_city"] = (
+    geo_df["ship_city"]
+    .str.strip()
+    .str.upper()
+)
+
+# Analyze states
+state_analysis = (
+    geo_df.groupby("ship_state")
+    .agg(
+        unique_orders=("order_id", "nunique"),
+        recorded_amount=("amount", "sum")
+    )
+    .reset_index()
+)
+
+state_analysis["average_recorded_amount_per_order"] = (
+    state_analysis["recorded_amount"]
+    / state_analysis["unique_orders"]
+)
+
+print("\nTop 10 States:")
+print(
+    state_analysis
+    .sort_values("unique_orders", ascending=False)
+    .head(10)
+    .round(2)
+    .to_string(index=False)
+)
+
+# Analyze cities
+city_analysis = (
+    geo_df.groupby("ship_city")
+    .agg(
+        unique_orders=("order_id", "nunique"),
+        recorded_amount=("amount", "sum")
+    )
+    .reset_index()
+)
+
+city_analysis["average_recorded_amount_per_order"] = (
+    city_analysis["recorded_amount"]
+    / city_analysis["unique_orders"]
+)
+
+print("\nTop 10 Cities:")
+print(
+    city_analysis
+    .sort_values("unique_orders", ascending=False)
+    .head(10)
+    .round(2)
+    .to_string(index=False)
+)
