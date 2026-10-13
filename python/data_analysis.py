@@ -30,6 +30,7 @@ print(df["qty"].describe())
 print("\nAmount Summary:")
 print(df["amount"].describe())
 
+
 # -------------------------
 # Order Status Analysis
 # -------------------------
@@ -50,13 +51,24 @@ print(
     .round(2)
 )
 
-# Compare Amount by order status
-print("\nAmount by Status:")
-print(
-    df.groupby("status")["amount"]
-    .agg(["count", "sum", "mean"])
-    .sort_values("sum", ascending=False)
+# Compare recorded amount by order status
+status_amount_analysis = (
+    df.groupby("status")
+    .agg(
+        records=("order_id", "size"),
+        amount_count=("amount", "count"),
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        ),
+        average_recorded_amount=("amount", "mean")
+    )
+    .sort_values("recorded_amount", ascending=False)
 )
+
+print("\nStatus Amount Analysis:")
+print(status_amount_analysis.round(2))
+
 
 # -------------------------
 # Sales Performance Analysis
@@ -65,14 +77,16 @@ print(
 # Total recorded amount across all records
 total_recorded_amount = df["amount"].sum()
 
-# Total amount excluding cancelled records
-non_cancelled_amount = df.loc[
-    df["status"] != "Cancelled",
-    "amount"
-].sum()
+# Create a subset for non-cancelled records
+non_cancelled_df = df[
+    df["status"] != "Cancelled"
+].copy()
 
-# Amount from delivered records
-delivered_amount = df.loc[
+# Total recorded amount excluding cancelled records
+non_cancelled_amount = non_cancelled_df["amount"].sum()
+
+# Recorded amount from explicitly delivered records
+explicitly_delivered_amount = df.loc[
     df["status"] == "Shipped - Delivered to Buyer",
     "amount"
 ].sum()
@@ -83,50 +97,34 @@ print(round(total_recorded_amount, 2))
 print("\nNon-Cancelled Recorded Amount:")
 print(round(non_cancelled_amount, 2))
 
-print("\nDelivered Recorded Amount:")
-print(round(delivered_amount, 2))
+print("\nExplicitly Delivered Recorded Amount:")
+print(round(explicitly_delivered_amount, 2))
 
-# Create a subset for delivered orders
-delivered_df = df[
-    df["status"] == "Shipped - Delivered to Buyer"
-].copy()
 
-# Create a subset for non-cancelled records
-non_cancelled_df = df[
-    df["status"] != "Cancelled"
-].copy()
 
 # -------------------------
 # Category Analysis
 # -------------------------
 
-# Analyze category activity using non-cancelled records
-category_activity = (
+# Analyze category performance using non-cancelled records
+category_analysis = (
     non_cancelled_df.groupby("category")
     .agg(
         unique_orders=("order_id", "nunique"),
-        total_quantity=("qty", "sum")
+        total_quantity=("qty", "sum"),
+        recorded_amount=("amount", "sum"),
     )
-    .sort_values("unique_orders", ascending=False)
+    .sort_values("recorded_amount", ascending=False)
+    .reset_index()
+)
+# Calculate average recorded amount per unique order
+category_analysis["average_recorded_amount_per_order"] = (
+    category_analysis["recorded_amount"]
+    / category_analysis["unique_orders"]
 )
 
-print("\nCategory Activity:")
-print(category_activity)
-
-# Analyze delivered amount by category
-category_delivered = (
-    delivered_df.groupby("category")
-    .agg(
-        delivered_orders=("order_id", "nunique"),
-        delivered_quantity=("qty", "sum"),
-        delivered_amount=("amount", "sum"),
-        average_amount=("amount", "mean")
-    )
-    .sort_values("delivered_amount", ascending=False)
-)
-
-print("\nDelivered Category Performance:")
-print(category_delivered)
+print("\nCategory Performance:")
+print(category_analysis.round(2).to_string(index=False))
 
 
 # -------------------------
@@ -134,30 +132,30 @@ print(category_delivered)
 # -------------------------
 
 # Extract year-month from the date column for monthly analysis
-delivered_df["month"] = (
-    delivered_df["date"]
+non_cancelled_df["month"] = (
+    non_cancelled_df["date"]
     .dt.to_period("M")
     .astype(str)
 )
 
-# Aggregate delivered orders, quantity, and amount by month
+# Aggregate non-cancelled orders, quantity, and amount by month
 monthly_trends = (
-    delivered_df.groupby("month")
+    non_cancelled_df.groupby("month")
     .agg(
-        delivered_orders=("order_id", "nunique"),
-        delivered_quantity=("qty", "sum"),
-        delivered_amount=("amount", "sum")
+        unique_orders=("order_id", "nunique"),
+        total_quantity=("qty", "sum"),
+        recorded_amount=("amount", "sum")
     )
     .reset_index()
 )
 
-print("\nMonthly Delivered Trends:")
+print("\nMonthly Non-Cancelled Trends:")
 print(monthly_trends)
 
-# Check delivered date coverage within each month
+# Check date coverage within each month
 print("\nMonthly Date Coverage:")
 print(
-    delivered_df.groupby("month")["date"]
+    non_cancelled_df.groupby("month")["date"]
     .agg(["min", "max", "nunique"])
 )
 
@@ -167,13 +165,13 @@ complete_months = monthly_trends[
 ].copy()
 
 complete_months["orders_change_pct"] = (
-    complete_months["delivered_orders"]
+    complete_months["unique_orders"]
     .pct_change()
     .mul(100)
 )
 
 complete_months["amount_change_pct"] = (
-    complete_months["delivered_amount"]
+    complete_months["recorded_amount"]
     .pct_change()
     .mul(100)
 )
@@ -181,18 +179,19 @@ complete_months["amount_change_pct"] = (
 print("\nComplete Month Comparison:")
 print(complete_months.round(2))
 
-# Calculate average amount per delivered order
-complete_months["average_amount_per_order"] = (
-    complete_months["delivered_amount"]
-    / complete_months["delivered_orders"]
+# Calculate average recorded amount per unique order
+complete_months["average_recorded_amount_per_order"] = (
+    complete_months["recorded_amount"]
+    / complete_months["unique_orders"]
 )
 
-print("\nAverage Amount per Delivered Order:")
+print("\nAverage Recorded Amount per Order:")
 print(
     complete_months[
-        ["month", "average_amount_per_order"]
-    ].round(2)
+        ["month", "average_recorded_amount_per_order"] 
+        ].round(2)
 )
+
 
 # -------------------------
 # Quantity Analysis
@@ -236,31 +235,36 @@ print(round(single_unit_pct, 2))
 print("\nMulti-Unit Orders Percentage:")
 print(round(multi_unit_pct, 2))
 
+
 # -------------------------
 # B2B Analysis
 # -------------------------
 
-# Analyze delivered performance by B2B segment
-b2b_delivered = (
-    delivered_df.groupby("b2b")
+# Compare non-cancelled B2B and non-B2B orders
+b2b_analysis = (
+    non_cancelled_df.groupby("b2b")
     .agg(
-        delivered_orders=("order_id", "nunique"),
-        delivered_quantity=("qty", "sum"),
-        delivered_amount=("amount", "sum"),
-        average_amount=("amount", "mean")
+        unique_orders=("order_id", "nunique"),
+        total_quantity=("qty", "sum"),
+        recorded_amount=("amount", "sum"),
     )
     .reset_index()
 )
+# Calculate average recorded amount per unique order
+b2b_analysis["average_recorded_amount_per_order"] = (
+    b2b_analysis["recorded_amount"]
+    / b2b_analysis["unique_orders"]
+)
 
-# Calculate delivered order share
-b2b_delivered["order_share_pct"] = (
-    b2b_delivered["delivered_orders"]
-    / b2b_delivered["delivered_orders"].sum()
+# Calculate share of non-cancelled orders
+b2b_analysis["order_share_pct"] = (
+    b2b_analysis["unique_orders"]
+    / b2b_analysis["unique_orders"].sum()
     * 100
 )
 
-print("\nDelivered B2B Performance:")
-print(b2b_delivered.round(2).to_string(index=False))
+print("\nNon-Cancelled B2B Performance:")
+print(b2b_analysis.round(2).to_string(index=False))
 
 
 # -------------------------
@@ -274,9 +278,13 @@ fulfilment_analysis = (
         unique_orders=("order_id", "nunique"),
         total_quantity=("qty", "sum"),
         recorded_amount=("amount", "sum"),
-        average_amount=("amount", "mean")
     )
     .reset_index()
+)
+# Calculate average recorded amount per unique order
+fulfilment_analysis["average_recorded_amount_per_order"] = (
+    fulfilment_analysis["recorded_amount"]
+    / fulfilment_analysis["unique_orders"]
 )
 
 # Calculate share of non-cancelled orders
@@ -288,9 +296,9 @@ fulfilment_analysis["order_share_pct"] = (
 
 print("\nNon-Cancelled Fulfilment Performance:")
 print(
-    fulfilment_analysis.round(2).to_string(index=False)
-)
+    fulfilment_analysis.round(2).to_string(index=False))
 
+# Check how order status differs by fulfilment method
 print("\nFulfilment by Status:")
 print(
     pd.crosstab(
