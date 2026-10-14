@@ -87,3 +87,31 @@ The cleaning process included:
 - Column names were standardized.
 - Date and postal code data types were corrected.
 - No duplicate rows remain after cleaning.
+
+
+## Exploratory Data Analysis
+
+Exploratory data analysis was performed using Python and Pandas on the cleaned dataset.
+
+The full dataset was used for order-status analysis, while non-cancelled records were used as the main population for business analysis. The `Amount` field is referred to as **Recorded Amount** because the dataset includes cancelled, returned, pending, and other non-final order statuses.
+
+### Key Findings
+
+- The cleaned dataset contains **128,969 records** and **120,378 unique orders**.
+- `Shipped` is the most common status at **60.33%**, while `Cancelled` accounts for **14.21%**.
+- Non-cancelled records account for approximately **71.67M** in Recorded Amount.
+- **Set** is the leading category by Recorded Amount at approximately **35.73M**, despite having a similar number of orders to `kurta`.
+- From April to May, unique orders decreased by **13.79%** and Recorded Amount decreased by **8.70%**, while average Recorded Amount per order increased from **670.41** to **709.96**.
+- **94.04%** of non-cancelled orders are single-unit orders.
+- B2B represents only **0.71%** of non-cancelled orders, but has a higher average Recorded Amount per order (**768.41**) than non-B2B orders (**694.01**).
+- Amazon fulfilment accounts for **70.93%** of non-cancelled unique orders, while Merchant accounts for **29.07%**. Their average Recorded Amount per order is relatively similar.
+- **Maharashtra** is the leading state with **18,002** non-cancelled unique orders, while **Bengaluru** is the leading city with **9,785**.
+- Orders with a recorded Promotion ID represent **70.93%** of non-cancelled orders and have a higher average Recorded Amount per order.
+- Quantity and Recorded Amount show a **moderate positive correlation of 0.57**.
+- High-value outliers were reviewed using the IQR method and retained because they did not appear to be obvious data errors.
+
+### Notes
+
+- `Recorded Amount` should not be interpreted as confirmed revenue or net sales.
+- `No Promotion ID Recorded` does not necessarily mean no promotion was applied.
+- Correlation indicates association, not causation.
