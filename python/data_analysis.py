@@ -446,3 +446,29 @@ print(
     .round(2)
     .to_string(index=False)
 )
+
+# -------------------------
+# Correlation Analysis
+# -------------------------
+
+# Aggregate quantity and recorded amount by order
+order_correlation = (
+    non_cancelled_df.groupby("order_id")
+    .agg(
+        total_quantity=("qty", "sum"),
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        )
+    )
+    .dropna()
+)
+
+# Calculate correlation between quantity and recorded amount
+quantity_amount_correlation = (
+    order_correlation["total_quantity"]
+    .corr(order_correlation["recorded_amount"])
+)
+
+print("\nQuantity and Recorded Amount Correlation:")
+print(round(quantity_amount_correlation, 3))
