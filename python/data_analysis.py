@@ -376,3 +376,73 @@ print(
     .round(2)
     .to_string(index=False)
 )
+
+# -------------------------
+# Promotion Analysis
+# -------------------------
+
+# Identify whether each order has at least one recorded promotion ID
+order_promotion_status = (
+    non_cancelled_df.groupby("order_id")["promotion_ids"]
+    .apply(lambda x: (x != "No Promotion ID").any())
+)
+
+# Add the order-level promotion status to each record
+promotion_df = non_cancelled_df.copy()
+
+promotion_df["has_promotion_id"] = (
+    promotion_df["order_id"]
+    .map(order_promotion_status)
+)
+
+# Compare orders by promotion ID availability
+promotion_analysis = (
+    promotion_df.groupby("has_promotion_id")
+    .agg(
+        unique_orders=("order_id", "nunique"),
+        total_quantity=("qty", "sum"),
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        )
+    )
+    .reset_index()
+)
+
+# Calculate average recorded amount per unique order
+promotion_analysis["average_recorded_amount_per_order"] = (
+    promotion_analysis["recorded_amount"]
+    / promotion_analysis["unique_orders"]
+)
+
+# Calculate share of non-cancelled orders
+promotion_analysis["order_share_pct"] = (
+    promotion_analysis["unique_orders"]
+    / promotion_analysis["unique_orders"].sum()
+    * 100
+)
+
+# Make the labels easier to understand
+promotion_analysis["promotion_status"] = (
+    promotion_analysis["has_promotion_id"]
+    .map({
+        True: "Has Promotion ID",
+        False: "No Promotion ID Recorded"
+    })
+)
+
+print("\nPromotion Analysis:")
+print(
+    promotion_analysis[
+        [
+            "promotion_status",
+            "unique_orders",
+            "total_quantity",
+            "recorded_amount",
+            "average_recorded_amount_per_order",
+            "order_share_pct"
+        ]
+    ]
+    .round(2)
+    .to_string(index=False)
+)
