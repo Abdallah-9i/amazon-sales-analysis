@@ -112,7 +112,10 @@ category_analysis = (
     .agg(
         unique_orders=("order_id", "nunique"),
         total_quantity=("qty", "sum"),
-        recorded_amount=("amount", "sum"),
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        )
     )
     .sort_values("recorded_amount", ascending=False)
     .reset_index()
@@ -144,7 +147,10 @@ monthly_trends = (
     .agg(
         unique_orders=("order_id", "nunique"),
         total_quantity=("qty", "sum"),
-        recorded_amount=("amount", "sum")
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        )
     )
     .reset_index()
 )
@@ -246,7 +252,10 @@ b2b_analysis = (
     .agg(
         unique_orders=("order_id", "nunique"),
         total_quantity=("qty", "sum"),
-        recorded_amount=("amount", "sum"),
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        ),
     )
     .reset_index()
 )
@@ -277,7 +286,10 @@ fulfilment_analysis = (
     .agg(
         unique_orders=("order_id", "nunique"),
         total_quantity=("qty", "sum"),
-        recorded_amount=("amount", "sum"),
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        ),
     )
     .reset_index()
 )
@@ -334,7 +346,10 @@ state_analysis = (
     geo_df.groupby("ship_state")
     .agg(
         unique_orders=("order_id", "nunique"),
-        recorded_amount=("amount", "sum")
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        )
     )
     .reset_index()
 )
@@ -358,7 +373,10 @@ city_analysis = (
     geo_df.groupby("ship_city")
     .agg(
         unique_orders=("order_id", "nunique"),
-        recorded_amount=("amount", "sum")
+        recorded_amount=(
+            "amount",
+            lambda x: x.sum(min_count=1)
+        )
     )
     .reset_index()
 )
@@ -472,3 +490,44 @@ quantity_amount_correlation = (
 
 print("\nQuantity and Recorded Amount Correlation:")
 print(round(quantity_amount_correlation, 3))
+
+# -------------------------
+# Outlier Analysis
+# -------------------------
+
+# Calculate IQR for recorded amount per order
+q1 = order_correlation["recorded_amount"].quantile(0.25)
+q3 = order_correlation["recorded_amount"].quantile(0.75)
+
+iqr = q3 - q1
+
+# Calculate the upper threshold for high-value outliers
+upper_bound = q3 + (1.5 * iqr)
+
+print("\nHigh Recorded Amount Outlier Threshold:")
+print(round(upper_bound, 2))
+
+# Identify high recorded amount outliers
+high_amount_outliers = order_correlation[
+    order_correlation["recorded_amount"] > upper_bound
+]
+
+print("\nHigh Recorded Amount Outliers:")
+print(len(high_amount_outliers))
+
+# Display the top 10 orders by recorded amount
+print("\nTop 10 Orders by Recorded Amount:")
+print(
+    order_correlation
+    .sort_values("recorded_amount", ascending=False)
+    .head(10)
+    .round(2)
+)
+
+# Display the top 10 orders by quantity
+print("\nTop 10 Orders by Quantity:")
+print(
+    order_correlation
+    .sort_values("total_quantity", ascending=False)
+    .head(10)
+)
