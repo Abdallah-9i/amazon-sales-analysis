@@ -39,3 +39,45 @@ SELECT
 FROM ranked_categories
 WHERE category_rank = 1
 ORDER BY recorded_amount DESC;
+
+-- 2. Promotion usage by fulfilment method
+
+WITH order_promotion AS (
+    SELECT
+        order_id,
+        BOOL_OR(promotion_ids <> 'No Promotion ID') AS has_promotion_id
+    FROM sales
+    WHERE status <> 'Cancelled'
+    GROUP BY order_id
+),
+
+promotion_fulfilment AS (
+    SELECT
+        s.fulfilment,
+        op.has_promotion_id,
+        COUNT(DISTINCT s.order_id) AS unique_orders,
+        SUM(s.amount) AS recorded_amount
+    FROM sales s
+    JOIN order_promotion op
+        ON s.order_id = op.order_id
+    WHERE s.status <> 'Cancelled'
+    GROUP BY
+        s.fulfilment,
+        op.has_promotion_id
+)
+
+SELECT
+    fulfilment,
+    CASE
+        WHEN has_promotion_id THEN 'Has Promotion ID'
+        ELSE 'No Promotion ID Recorded'
+    END AS promotion_status,
+    unique_orders,
+    recorded_amount,
+    ROUND(
+        unique_orders * 100.0
+        / SUM(unique_orders) OVER (PARTITION BY fulfilment),
+        2
+    ) AS order_share_pct
+FROM promotion_fulfilment
+ORDER BY fulfilment, has_promotion_id DESC;
