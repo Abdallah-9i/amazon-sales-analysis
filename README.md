@@ -115,3 +115,28 @@ The full dataset was used for order-status analysis, while non-cancelled records
 - `Recorded Amount` should not be interpreted as confirmed revenue or net sales.
 - `No Promotion ID Recorded` does not necessarily mean no promotion was applied.
 - Correlation indicates association, not causation.
+
+## SQL Analysis
+
+SQL analysis was performed using PostgreSQL on the cleaned dataset to extend the Python EDA and apply database querying techniques such as CTEs, joins, conditional logic, ranking, and window functions.
+
+Non-cancelled orders were used as the main population for the SQL analysis. The `Amount` field continues to be referred to as **Recorded Amount** rather than confirmed revenue or net sales.
+
+### Key Findings
+
+- `Set` was the leading category by Recorded Amount across most geographic labels. Maharashtra showed the strongest category performance, with **6,736 unique orders** and approximately **5.76M** in Recorded Amount.
+- Among non-cancelled orders, **99.81%** of Merchant-fulfilled orders had a recorded Promotion ID, compared with **59.09%** of Amazon-fulfilled orders.
+- Using quartile thresholds calculated during the Python EDA (`Q1 = 459`, `Q3 = 824`), orders with known Recorded Amount were segmented into Low, Medium, and High Value groups.
+- High Value orders represented approximately **25%** of orders with known Recorded Amount but contributed about **41.8%** of Recorded Amount, with an average order value of **1,165.30**.
+- `Set` contributed **49.85%** of non-cancelled Recorded Amount, while `kurta` contributed **27.10%**. Together, they accounted for approximately **76.95%**.
+- The top three categories — `Set`, `kurta`, and `Western Dress` — accounted for approximately **91.20%** of non-cancelled Recorded Amount.
+- Maharashtra was the leading state by Recorded Amount for **6 of the 9 product categories**. `Blouse` was led by Karnataka, `Saree` by Tamil Nadu, and `Dupatta` by Telangana.
+- The running total of non-cancelled Recorded Amount reached **71.67M**, matching the result calculated during the Python analysis and providing an additional validation check.
+
+### Notes
+
+- SQL analysis primarily uses **non-cancelled orders** unless otherwise stated.
+- `Recorded Amount` should not be interpreted as confirmed revenue or net sales.
+- `No Promotion ID Recorded` does not necessarily mean no promotion was applied.
+- Order value segmentation thresholds were derived from quartiles calculated during the Python EDA rather than selected arbitrarily.
+- Geographic labels were normalized for capitalization and whitespace in SQL, but some spelling and abbreviation variants may still remain.
