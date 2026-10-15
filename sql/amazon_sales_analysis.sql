@@ -122,3 +122,32 @@ FROM sales
 WHERE status <> 'Cancelled'
 group by category
 ORDER BY recorded_amount DESC;
+
+
+-- 5. Top state by category
+
+WITH ranked_states AS (
+    SELECT
+        category,
+        UPPER(TRIM(ship_state)) AS ship_state,
+        SUM(amount) AS recorded_amount,
+        RANK() OVER (
+            PARTITION BY category
+            ORDER BY SUM(amount) DESC
+        ) AS state_rank
+    FROM sales
+    WHERE status <> 'Cancelled'
+      AND ship_state IS NOT NULL
+      AND UPPER(TRIM(ship_state)) <> 'UNKNOWN'
+    GROUP BY
+        category,
+        UPPER(TRIM(ship_state))
+)
+
+SELECT
+    category,
+    ship_state,
+    recorded_amount
+FROM ranked_states
+WHERE state_rank = 1
+ORDER BY recorded_amount DESC;
