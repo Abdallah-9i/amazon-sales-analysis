@@ -1,3 +1,4 @@
+-- Data validation
 SELECT COUNT(*)
 FROM sales;
 
@@ -120,9 +121,8 @@ SELECT
 ) AS contribution_pct
 FROM sales
 WHERE status <> 'Cancelled'
-group by category
+GROUP BY category
 ORDER BY recorded_amount DESC;
-
 
 -- 5. Top state by category
 
@@ -151,3 +151,23 @@ SELECT
 FROM ranked_states
 WHERE state_rank = 1
 ORDER BY recorded_amount DESC;
+
+-- 6. Running total of recorded amount over time
+
+WITH monthly_amount AS (
+    SELECT
+        DATE_TRUNC('month', date)::DATE AS month,
+        SUM(amount) AS recorded_amount
+    FROM sales
+    WHERE status <> 'Cancelled'
+    GROUP BY DATE_TRUNC('month', date)
+)
+
+SELECT
+    month,
+    recorded_amount,
+    SUM(recorded_amount) OVER (
+        ORDER BY month
+    ) AS running_total
+FROM monthly_amount
+ORDER BY month;
