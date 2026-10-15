@@ -107,3 +107,18 @@ FROM order_totals
 WHERE recorded_amount IS NOT NULL
 GROUP BY value_segment
 ORDER BY average_order_value;
+
+-- 4. Category contribution to total recorded amount
+
+SELECT
+    category,
+    SUM(amount) as recorded_amount,
+    ROUND(
+    SUM(amount) * 100.0
+    / SUM(SUM(amount)) OVER (),
+    2
+) AS contribution_pct
+FROM sales
+WHERE status <> 'Cancelled'
+group by category
+ORDER BY recorded_amount DESC;
