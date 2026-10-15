@@ -81,3 +81,29 @@ SELECT
     ) AS order_share_pct
 FROM promotion_fulfilment
 ORDER BY fulfilment, has_promotion_id DESC;
+
+-- 3. Order value segmentation
+-- Thresholds are based on Q1 and Q3 calculated during Python EDA
+
+WITH order_totals AS (
+    SELECT
+        order_id,
+        SUM(amount) AS recorded_amount
+    FROM sales
+    WHERE status <> 'Cancelled'
+    GROUP BY order_id
+)
+
+SELECT
+    CASE
+        WHEN recorded_amount < 459 THEN 'Low Value'
+        WHEN recorded_amount <= 824 THEN 'Medium Value'
+        ELSE 'High Value'
+    END AS value_segment,
+    COUNT(*) AS unique_orders,
+    ROUND(SUM(recorded_amount), 2) AS recorded_amount,
+    ROUND(AVG(recorded_amount), 2) AS average_order_value
+FROM order_totals
+WHERE recorded_amount IS NOT NULL
+GROUP BY value_segment
+ORDER BY average_order_value;
