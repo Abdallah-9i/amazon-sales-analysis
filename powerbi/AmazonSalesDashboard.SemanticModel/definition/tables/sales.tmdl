@@ -1,0 +1,205 @@
+table sales
+	lineageTag: 2906b687-64e9-4cf1-975d-0a1332891455
+
+	column order_id
+		dataType: string
+		lineageTag: d9c24ce1-f78d-4221-8b32-7900115a1dd1
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 607579a6-8083-4fb9-9516-725e4046e38a
+		summarizeBy: none
+		sourceColumn: date
+
+		variation Variation
+			isDefault
+			relationship: ae713a2e-5d78-472e-87ab-245652b1137a
+			defaultHierarchy: LocalDateTable_54108bd5-f42c-40ac-a8ff-6feb5b9a8859.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column status
+		dataType: string
+		lineageTag: 38098c16-47c8-4f75-bb04-1d3a69cb5cfb
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column fulfilment
+		dataType: string
+		lineageTag: fa50bd58-0e60-423b-b045-890ae264727e
+		summarizeBy: none
+		sourceColumn: fulfilment
+
+		annotation SummarizationSetBy = Automatic
+
+	column sales_channel
+		dataType: string
+		lineageTag: 65c32aac-ece9-4dff-8532-85a3f815c6f1
+		summarizeBy: none
+		sourceColumn: sales_channel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_service_level
+		dataType: string
+		lineageTag: 2694b2e9-a365-407b-967c-2d4405b617aa
+		summarizeBy: none
+		sourceColumn: ship_service_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column style
+		dataType: string
+		lineageTag: f059700c-6ebb-41e0-a841-9a6ba775eb3a
+		summarizeBy: none
+		sourceColumn: style
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: d04c671f-7835-44ae-894d-11a916a73b51
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 3c965db2-ab86-4387-a1fc-60e63377d23d
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column size
+		dataType: string
+		lineageTag: 64b5db5d-a657-4bbc-8ff1-dc0045196a09
+		summarizeBy: none
+		sourceColumn: size
+
+		annotation SummarizationSetBy = Automatic
+
+	column asin
+		dataType: string
+		lineageTag: 705b2ab5-d2a5-4706-8861-116c5b34645c
+		summarizeBy: none
+		sourceColumn: asin
+
+		annotation SummarizationSetBy = Automatic
+
+	column courier_status
+		dataType: string
+		lineageTag: c5eb97aa-5275-40a3-8446-931e7dbd7681
+		summarizeBy: none
+		sourceColumn: courier_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 06d15c14-a343-48b7-991f-38cd5a0601a0
+		summarizeBy: sum
+		sourceColumn: qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column currency
+		dataType: string
+		lineageTag: aa280219-311f-44d2-8839-f95c54c74667
+		summarizeBy: none
+		sourceColumn: currency
+
+		annotation SummarizationSetBy = Automatic
+
+	column amount
+		dataType: double
+		lineageTag: b27e056e-96d7-4ed3-8f32-8ac9c407f443
+		summarizeBy: sum
+		sourceColumn: amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ship_city
+		dataType: string
+		lineageTag: d6cc50fd-d881-46cf-94e2-771ffd31de24
+		summarizeBy: none
+		sourceColumn: ship_city
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_state
+		dataType: string
+		lineageTag: 1ee2f9e2-b8f9-4161-9529-c015ba44131d
+		summarizeBy: none
+		sourceColumn: ship_state
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_postal_code
+		dataType: string
+		lineageTag: 132262d5-2a11-4617-8c88-80bd1c35c05a
+		summarizeBy: none
+		sourceColumn: ship_postal_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_country
+		dataType: string
+		lineageTag: 39e8c38f-4891-437c-afbc-b32fc4be9ed1
+		summarizeBy: none
+		sourceColumn: ship_country
+
+		annotation SummarizationSetBy = Automatic
+
+	column promotion_ids
+		dataType: string
+		lineageTag: b8960899-0070-4376-b12c-6387644a8769
+		summarizeBy: none
+		sourceColumn: promotion_ids
+
+		annotation SummarizationSetBy = Automatic
+
+	column b2b
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: fea3f7d7-4067-42e2-9b8d-fa6a43950347
+		summarizeBy: none
+		sourceColumn: b2b
+
+		annotation SummarizationSetBy = Automatic
+
+	column fulfilled_by
+		dataType: string
+		lineageTag: 2f6b82f8-7ceb-4f73-92c9-3959c80c86e1
+		summarizeBy: none
+		sourceColumn: fulfilled_by
+
+		annotation SummarizationSetBy = Automatic
+
+	partition sales = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\tmsaf\OneDrive\سطح المكتب\amazon-sales-analysis-1\data\cleaned\amazon_sales_cleaned.csv"),[Delimiter=",", Columns=22, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"order_id", type text}, {"date", type date}, {"status", type text}, {"fulfilment", type text}, {"sales_channel", type text}, {"ship_service_level", type text}, {"style", type text}, {"sku", type text}, {"category", type text}, {"size", type text}, {"asin", type text}, {"courier_status", type text}, {"qty", Int64.Type}, {"currency", type text}, {"amount", type number}, {"ship_city", type text}, {"ship_state", type text}, {"ship_postal_code", type text}, {"ship_country", type text}, {"promotion_ids", type text}, {"b2b", type logical}, {"fulfilled_by", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

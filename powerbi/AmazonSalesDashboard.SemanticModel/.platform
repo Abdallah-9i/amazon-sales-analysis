@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "AmazonSalesDashboard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "50f027cd-ba08-45c5-b6f1-6d5e557978a2"
+  }
+}

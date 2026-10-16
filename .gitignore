@@ -3,3 +3,6 @@ data/cleaned/*
 
 !data/row/.gitkeep
 !data/cleaned/.gitkeep
+
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
