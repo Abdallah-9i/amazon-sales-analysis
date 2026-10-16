@@ -35,17 +35,26 @@ print(df["amount"].describe())
 # Order Status Analysis
 # -------------------------
 
-# Count records by order status
-print("\nRecords by Status:")
+# Check whether any order has more than one status
+status_per_order = df.groupby("order_id")["status"].nunique()
+
+print("\nOrders with More Than One Status:")
+print((status_per_order > 1).sum())
+
+# Create one row per unique order
+order_status = df[["order_id", "status"]].drop_duplicates()
+
+# Count unique orders by status
+print("\nUnique Orders by Status:")
 print(
-    df["status"]
+    order_status["status"]
     .value_counts()
 )
 
-# Calculate percentage of each status
-print("\nStatus Distribution (%):")
+# Calculate percentage of unique orders by status
+print("\nOrder Status Distribution (%):")
 print(
-    df["status"]
+    order_status["status"]
     .value_counts(normalize=True)
     .mul(100)
     .round(2)

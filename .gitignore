@@ -1,7 +1,7 @@
-data/row/*
+data/raw/*
 data/cleaned/*
 
-!data/row/.gitkeep
+!data/raw/.gitkeep
 !data/cleaned/.gitkeep
 
 **/.pbi/localSettings.json
