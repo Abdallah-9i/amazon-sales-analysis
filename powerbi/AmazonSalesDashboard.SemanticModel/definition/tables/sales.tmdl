@@ -1,6 +1,39 @@
 table sales
 	lineageTag: 2906b687-64e9-4cf1-975d-0a1332891455
 
+	measure 'Unique Orders' = DISTINCTCOUNT(sales[order_id])
+		formatString: 0
+		lineageTag: 423cee27-594c-4015-8095-1c40dfca5bc5
+
+	measure 'Non-Cancelled Orders' =
+			
+			CALCULATE(
+			    [Unique Orders],
+			    sales[status] <> "Cancelled"
+			)
+		formatString: 0
+		lineageTag: b46d799a-5fec-444f-b4a8-0873947e7f8f
+
+	measure 'Recorded Amount' =
+			
+			CALCULATE(
+			    SUM(sales[amount]),
+			    sales[status] <> "Cancelled"
+			)
+		lineageTag: 57a0b46c-6d1b-4f94-8e3d-12a86044f9b0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Recorded Amount per Order' =
+			
+			DIVIDE(
+			    [Recorded Amount],
+			    [Non-Cancelled Orders]
+			)
+		lineageTag: 019c9cd9-789e-4ed1-8cf1-3cac2d1510f8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column order_id
 		dataType: string
 		lineageTag: d9c24ce1-f78d-4221-8b32-7900115a1dd1

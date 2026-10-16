@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "abeb7dfc0dcad14d8224",
+  "position": {
+    "x": 10,
+    "y": 0,
+    "z": 0,
+    "height": 280,
+    "width": 280,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sales"
+                    }
+                  },
+                  "Property": "Unique Orders"
+                }
+              },
+              "queryRef": "sales.Unique Orders",
+              "nativeQueryRef": "Unique Orders",
+              "format": "G"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "sales"
+                  }
+                },
+                "Property": "Unique Orders"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "1a621f9070cfb021b0ec",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sales"
+              }
+            },
+            "Property": "Unique Orders"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

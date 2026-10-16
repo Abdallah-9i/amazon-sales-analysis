@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "653aaedebfd4ab1e29a1",
+  "position": {
+    "x": 10,
+    "y": 290,
+    "z": 1,
+    "height": 280,
+    "width": 280,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sales"
+                    }
+                  },
+                  "Property": "Non-Cancelled Orders"
+                }
+              },
+              "queryRef": "sales.Non-Cancelled Orders",
+              "nativeQueryRef": "Non-Cancelled Orders",
+              "format": "G"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "sales"
+                  }
+                },
+                "Property": "Non-Cancelled Orders"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "0fa701eaeaa39bc342c1",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sales"
+              }
+            },
+            "Property": "Non-Cancelled Orders"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

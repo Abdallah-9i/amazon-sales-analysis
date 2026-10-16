@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "79580dfaf23fe50d9c39",
+  "position": {
+    "x": 10.291629675538953,
+    "y": 786.28050721117609,
+    "z": 3,
+    "height": 205.83259351077908,
+    "width": 279.93232717465952,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sales"
+                    }
+                  },
+                  "Property": "Average Recorded Amount per Order"
+                }
+              },
+              "queryRef": "sales.Average Recorded Amount per Order",
+              "nativeQueryRef": "Average Recorded Amount per Order",
+              "format": "0.00"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "sales"
+                  }
+                },
+                "Property": "Average Recorded Amount per Order"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "2fdc001f25393833de45",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sales"
+              }
+            },
+            "Property": "Average Recorded Amount per Order"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

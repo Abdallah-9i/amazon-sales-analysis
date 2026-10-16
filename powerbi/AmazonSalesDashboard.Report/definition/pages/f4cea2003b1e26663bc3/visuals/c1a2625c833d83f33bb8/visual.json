@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "c1a2625c833d83f33bb8",
+  "position": {
+    "x": 10.291629675538953,
+    "y": 580.447913700397,
+    "z": 2,
+    "height": 205.83259351077908,
+    "width": 279.93232717465952,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sales"
+                    }
+                  },
+                  "Property": "Recorded Amount"
+                }
+              },
+              "queryRef": "sales.Recorded Amount",
+              "nativeQueryRef": "Recorded Amount"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "sales"
+                  }
+                },
+                "Property": "Recorded Amount"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "7e2067beda81ffee9cff",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sales"
+              }
+            },
+            "Property": "Recorded Amount"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}
