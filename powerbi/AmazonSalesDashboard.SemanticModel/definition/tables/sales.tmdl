@@ -25,7 +25,7 @@ table sales
 
 		annotation PBI_FormatHint = {"isDecimal":true}
 
-	measure 'Average Recorded Amount per Order' =
+	measure 'Avg Recorded Amount per Order' =
 			
 			DIVIDE(
 			    [Recorded Amount],

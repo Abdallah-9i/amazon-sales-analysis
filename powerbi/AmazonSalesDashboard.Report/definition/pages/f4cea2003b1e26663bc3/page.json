@@ -13,9 +13,8 @@
             "solid": {
               "color": {
                 "expr": {
-                  "ThemeDataColor": {
-                    "ColorId": 0,
-                    "Percent": -0.6
+                  "Literal": {
+                    "Value": "'#F3F4F6'"
                   }
                 }
               }
