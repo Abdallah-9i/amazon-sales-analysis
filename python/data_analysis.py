@@ -6,6 +6,27 @@ df = pd.read_csv(
     parse_dates=["date"]
 )
 
+def sum_min1(x):
+    return x.sum(min_count=1)
+
+
+def summarize(data, by, include_quantity=True):
+    agg = {
+        "unique_orders": ("order_id", "nunique"),
+        "recorded_amount": ("amount", sum_min1)
+    }
+
+    if include_quantity:
+        agg["total_quantity"] = ("qty", "sum")
+
+    result = data.groupby(by).agg(**agg).reset_index()
+
+    result["average_recorded_amount_per_order"] = (
+        result["recorded_amount"] / result["unique_orders"]
+    )
+
+    return result
+
 # -------------------------
 # Analysis Overview
 # -------------------------
@@ -117,22 +138,8 @@ print(round(explicitly_delivered_amount, 2))
 
 # Analyze category performance using non-cancelled records
 category_analysis = (
-    non_cancelled_df.groupby("category")
-    .agg(
-        unique_orders=("order_id", "nunique"),
-        total_quantity=("qty", "sum"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        )
-    )
+    summarize(non_cancelled_df, "category")
     .sort_values("recorded_amount", ascending=False)
-    .reset_index()
-)
-# Calculate average recorded amount per unique order
-category_analysis["average_recorded_amount_per_order"] = (
-    category_analysis["recorded_amount"]
-    / category_analysis["unique_orders"]
 )
 
 print("\nCategory Performance:")
@@ -256,23 +263,7 @@ print(round(multi_unit_pct, 2))
 # -------------------------
 
 # Compare non-cancelled B2B and non-B2B orders
-b2b_analysis = (
-    non_cancelled_df.groupby("b2b")
-    .agg(
-        unique_orders=("order_id", "nunique"),
-        total_quantity=("qty", "sum"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        ),
-    )
-    .reset_index()
-)
-# Calculate average recorded amount per unique order
-b2b_analysis["average_recorded_amount_per_order"] = (
-    b2b_analysis["recorded_amount"]
-    / b2b_analysis["unique_orders"]
-)
+b2b_analysis = summarize(non_cancelled_df, "b2b")
 
 # Calculate share of non-cancelled orders
 b2b_analysis["order_share_pct"] = (
@@ -290,22 +281,9 @@ print(b2b_analysis.round(2).to_string(index=False))
 # -------------------------
 
 # Compare non-cancelled activity by fulfilment method
-fulfilment_analysis = (
-    non_cancelled_df.groupby("fulfilment")
-    .agg(
-        unique_orders=("order_id", "nunique"),
-        total_quantity=("qty", "sum"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        ),
-    )
-    .reset_index()
-)
-# Calculate average recorded amount per unique order
-fulfilment_analysis["average_recorded_amount_per_order"] = (
-    fulfilment_analysis["recorded_amount"]
-    / fulfilment_analysis["unique_orders"]
+fulfilment_analysis = summarize(
+    non_cancelled_df,
+    "fulfilment"
 )
 
 # Calculate share of non-cancelled orders
@@ -317,25 +295,25 @@ fulfilment_analysis["order_share_pct"] = (
 
 print("\nNon-Cancelled Fulfilment Performance:")
 print(
-    fulfilment_analysis.round(2).to_string(index=False))
+    fulfilment_analysis.round(2).to_string(index=False)
+)
 
 # Check how order status differs by fulfilment method
-print("\nFulfilment by Status:")
+print("\nFulfilment by Status (Record Counts):")
 print(
     pd.crosstab(
         df["fulfilment"],
         df["status"]
     )
 )
+
+
 # -------------------------
 # Geographic Analysis
 # -------------------------
 
 # Prepare geographic data from non-cancelled records
-geo_df = non_cancelled_df[
-    (non_cancelled_df["ship_state"] != "Unknown")
-    & (non_cancelled_df["ship_city"] != "Unknown")
-].copy()
+geo_df = non_cancelled_df.copy()
 
 # Standardize geographic values
 geo_df["ship_state"] = (
@@ -350,22 +328,17 @@ geo_df["ship_city"] = (
     .str.upper()
 )
 
-# Analyze states
-state_analysis = (
-    geo_df.groupby("ship_state")
-    .agg(
-        unique_orders=("order_id", "nunique"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        )
-    )
-    .reset_index()
-)
+# Remove unknown geographic values after standardization
+geo_df = geo_df[
+    (geo_df["ship_state"] != "UNKNOWN")
+    & (geo_df["ship_city"] != "UNKNOWN")
+].copy()
 
-state_analysis["average_recorded_amount_per_order"] = (
-    state_analysis["recorded_amount"]
-    / state_analysis["unique_orders"]
+# Analyze states
+state_analysis = summarize(
+    geo_df,
+    "ship_state",
+    include_quantity=False
 )
 
 print("\nTop 10 States:")
@@ -377,22 +350,11 @@ print(
     .to_string(index=False)
 )
 
-# Analyze cities
-city_analysis = (
-    geo_df.groupby("ship_city")
-    .agg(
-        unique_orders=("order_id", "nunique"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        )
-    )
-    .reset_index()
-)
-
-city_analysis["average_recorded_amount_per_order"] = (
-    city_analysis["recorded_amount"]
-    / city_analysis["unique_orders"]
+# Analyze cities within states
+city_analysis = summarize(
+    geo_df,
+    ["ship_state", "ship_city"],
+    include_quantity=False
 )
 
 print("\nTop 10 Cities:")
@@ -403,6 +365,7 @@ print(
     .round(2)
     .to_string(index=False)
 )
+
 
 # -------------------------
 # Promotion Analysis
@@ -423,23 +386,9 @@ promotion_df["has_promotion_id"] = (
 )
 
 # Compare orders by promotion ID availability
-promotion_analysis = (
-    promotion_df.groupby("has_promotion_id")
-    .agg(
-        unique_orders=("order_id", "nunique"),
-        total_quantity=("qty", "sum"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        )
-    )
-    .reset_index()
-)
-
-# Calculate average recorded amount per unique order
-promotion_analysis["average_recorded_amount_per_order"] = (
-    promotion_analysis["recorded_amount"]
-    / promotion_analysis["unique_orders"]
+promotion_analysis = summarize(
+    promotion_df,
+    "has_promotion_id"
 )
 
 # Calculate share of non-cancelled orders
@@ -474,6 +423,7 @@ print(
     .to_string(index=False)
 )
 
+
 # -------------------------
 # Correlation Analysis
 # -------------------------
@@ -483,22 +433,19 @@ order_correlation = (
     non_cancelled_df.groupby("order_id")
     .agg(
         total_quantity=("qty", "sum"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        )
+        recorded_amount=("amount", sum_min1)
     )
     .dropna()
 )
 
 # Calculate correlation between quantity and recorded amount
-quantity_amount_correlation = (
-    order_correlation["total_quantity"]
-    .corr(order_correlation["recorded_amount"])
-)
+quantity_amount_correlation = order_correlation[
+    "total_quantity"
+].corr(order_correlation["recorded_amount"])
 
 print("\nQuantity and Recorded Amount Correlation:")
 print(round(quantity_amount_correlation, 3))
+
 
 # -------------------------
 # Outlier Analysis
@@ -507,10 +454,9 @@ print(round(quantity_amount_correlation, 3))
 # Calculate IQR for recorded amount per order
 q1 = order_correlation["recorded_amount"].quantile(0.25)
 q3 = order_correlation["recorded_amount"].quantile(0.75)
-
 iqr = q3 - q1
 
-# Calculate the upper threshold for high-value outliers
+# Calculate upper threshold for high-value outliers
 upper_bound = q3 + (1.5 * iqr)
 
 print("\nHigh Recorded Amount Outlier Threshold:")
@@ -524,7 +470,7 @@ high_amount_outliers = order_correlation[
 print("\nHigh Recorded Amount Outliers:")
 print(len(high_amount_outliers))
 
-# Display the top 10 orders by recorded amount
+# Display top 10 orders by recorded amount
 print("\nTop 10 Orders by Recorded Amount:")
 print(
     order_correlation
@@ -533,10 +479,18 @@ print(
     .round(2)
 )
 
-# Display the top 10 orders by quantity
+# Display top 10 orders by quantity
 print("\nTop 10 Orders by Quantity:")
 print(
     order_correlation
     .sort_values("total_quantity", ascending=False)
     .head(10)
 )
+
+# -------------------------
+# Validation Checks
+# -------------------------
+
+assert (status_per_order > 1).sum() == 0
+assert df["order_id"].nunique() == 120378
+assert non_cancelled_df["order_id"].nunique() == 103193
