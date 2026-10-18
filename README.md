@@ -93,28 +93,33 @@ The cleaning process included:
 
 Exploratory data analysis was performed using Python and Pandas on the cleaned dataset.
 
-The full dataset was used for order-status analysis, while non-cancelled records were used as the main population for business analysis. The `Amount` field is referred to as **Recorded Amount** because the dataset includes cancelled, returned, pending, and other non-final order statuses.
+The full dataset was used for order-status analysis, while non-cancelled records were used as the main population for business analysis. Non-cancelled records include all statuses except `Cancelled`, including returned, pending, failed, and other non-final statuses. The `Amount` field is therefore referred to as **Recorded Amount** rather than confirmed revenue or net sales.
 
 ### Key Findings
 
 - The cleaned dataset contains **128,969 records** and **120,378 unique orders**.
-- `Shipped` is the most common status at **60.33%**, while `Cancelled` accounts for **14.21%**.
+- `Shipped` is the most common order status at **60.50%** of unique orders, while `Cancelled` accounts for **14.28%**.
 - Non-cancelled records account for approximately **71.67M** in Recorded Amount.
-- **Set** is the leading category by Recorded Amount at approximately **35.73M**, despite having a similar number of orders to `kurta`.
-- From April to May, unique orders decreased by **13.79%** and Recorded Amount decreased by **8.70%**, while average Recorded Amount per order increased from **670.41** to **709.96**.
+- **Set** is the leading category by Recorded Amount at approximately **35.73M**, despite having a similar number of unique orders to `kurta`. Its average Recorded Amount per order is also substantially higher.
+- On a daily basis, unique orders decreased by **16.57%** from April to May and by another **4.36%** from May to June. Recorded Amount per day decreased by **11.65%** and **4.54%**, respectively.
+- Despite the decline in daily order volume, average Recorded Amount per order increased from **670.41** in April to **709.96** in May and remained similar at **708.63** in June. This suggests that the decline was driven mainly by lower order volume rather than lower order value.
 - **94.04%** of non-cancelled orders are single-unit orders.
 - B2B represents only **0.71%** of non-cancelled orders, but has a higher average Recorded Amount per order (**768.41**) than non-B2B orders (**694.01**).
-- Amazon fulfilment accounts for **70.93%** of non-cancelled unique orders, while Merchant accounts for **29.07%**. Their average Recorded Amount per order is relatively similar.
+- Amazon fulfilment accounts for **70.93%** of non-cancelled unique orders, while Merchant accounts for **29.07%**.
+- Merchant orders have a higher cancellation rate (**17.54%**) than Amazon-fulfilled orders (**12.86%**).
 - **Maharashtra** is the leading state with **18,002** non-cancelled unique orders, while **Bengaluru** is the leading city with **9,785**.
-- Orders with a recorded Promotion ID represent **70.93%** of non-cancelled orders and have a higher average Recorded Amount per order.
+- Orders with a recorded Promotion ID represent **70.93%** of non-cancelled orders and have a higher average Recorded Amount per order. However, Promotion ID usage is strongly associated with fulfilment method, so the difference should not be interpreted as a direct promotion effect.
 - Quantity and Recorded Amount show a **moderate positive correlation of 0.57**.
-- High-value outliers were reviewed using the IQR method and retained because they did not appear to be obvious data errors.
+- High-value outliers were reviewed using the IQR method. Many high-value orders also contained multiple units, and the amount-per-unit distribution did not provide evidence that these orders were obvious data errors, so the outliers were retained.
 
 ### Notes
 
 - `Recorded Amount` should not be interpreted as confirmed revenue or net sales.
-- `No Promotion ID Recorded` does not necessarily mean no promotion was applied.
+- The non-cancelled population includes returned, pending, failed, and other non-final order statuses.
+- `No Promotion ID Recorded` does not necessarily mean that no promotion was applied.
+- Promotion ID usage is strongly associated with fulfilment method, so observed differences should not be interpreted as causal.
 - Correlation indicates association, not causation.
+- March contains only one day of data, while June contains 29 days; monthly comparisons therefore use daily averages for months with at least 28 days of coverage.
 
 ## SQL Analysis
 
@@ -124,8 +129,8 @@ Non-cancelled orders were used as the main population for the SQL analysis. The 
 
 ### Key Findings
 
-- `Set` was the leading category by Recorded Amount across most geographic labels. Maharashtra showed the strongest category performance, with **6,736 unique orders** and approximately **5.76M** in Recorded Amount.
-- Among non-cancelled orders, **99.81%** of Merchant-fulfilled orders had a recorded Promotion ID, compared with **59.09%** of Amazon-fulfilled orders.
+- `Set` was the leading category by Recorded Amount across most geographic labels. The strongest state-category combination was **Maharashtra + Set**, with **6,736 unique orders** and approximately **5.76M** in Recorded Amount.
+- Among non-cancelled orders, **99.81%** of Merchant-fulfilled orders had a recorded Promotion ID, compared with **59.09%** of Amazon-fulfilled orders. This strong association means Promotion ID differences should not be interpreted as a direct promotion effect.
 - Using quartile thresholds calculated during the Python EDA (`Q1 = 459`, `Q3 = 824`), orders with known Recorded Amount were segmented into Low, Medium, and High Value groups.
 - High Value orders represented approximately **25%** of orders with known Recorded Amount but contributed about **41.8%** of Recorded Amount, with an average order value of **1,165.30**.
 - `Set` contributed **49.85%** of non-cancelled Recorded Amount, while `kurta` contributed **27.10%**. Together, they accounted for approximately **76.95%**.
@@ -138,5 +143,7 @@ Non-cancelled orders were used as the main population for the SQL analysis. The 
 - SQL analysis primarily uses **non-cancelled orders** unless otherwise stated.
 - `Recorded Amount` should not be interpreted as confirmed revenue or net sales.
 - `No Promotion ID Recorded` does not necessarily mean no promotion was applied.
+- Promotion ID usage is strongly associated with fulfilment method, so observed differences should not be interpreted as causal.
 - Order value segmentation thresholds were derived from quartiles calculated during the Python EDA rather than selected arbitrarily.
+- March and June are partial months in the dataset, so raw monthly totals should not be interpreted as directly comparable full-month performance.
 - Geographic labels were normalized for capitalization and whitespace in SQL, but some spelling and abbreviation variants may still remain.
