@@ -1,16 +1,28 @@
 import pandas as pd
 
-# Load cleaned dataset
+
+# -------------------------
+# Load Cleaned Dataset
+# -------------------------
+
 df = pd.read_csv(
     "../data/cleaned/amazon_sales_cleaned.csv",
     parse_dates=["date"]
 )
+# -------------------------
+# Helper Functions
+# -------------------------
 
 def sum_min1(x):
+    """Sum values while returning NaN, not 0, when all values are missing."""
     return x.sum(min_count=1)
 
-
 def summarize(data, by, include_quantity=True):
+    """
+    Summarize unique orders, quantity, and recorded amount by group.
+    Average recorded amount is divided by all unique orders,
+    including orders with missing amount values.
+    """
     agg = {
         "unique_orders": ("order_id", "nunique"),
         "recorded_amount": ("amount", sum_min1)
@@ -27,27 +39,45 @@ def summarize(data, by, include_quantity=True):
 
     return result
 
+def add_order_share(data):
+    """
+    Add order share for mutually exclusive groups such as B2B,
+    fulfilment, and promotion.
+
+    Do not use for category because one order can contain
+    multiple categories.
+    """
+    result = data.copy()
+
+    result["order_share_pct"] = (
+        result["unique_orders"]
+        / result["unique_orders"].sum()
+        * 100
+    )
+
+    return result
+
+def show(title, data):
+    """Print a formatted analysis table with values rounded to two decimals."""
+    print(f"\n{title}:")
+    print(data.round(2).to_string(index=False))
+
 # -------------------------
 # Analysis Overview
 # -------------------------
 
-# Check dataset shape
 print("\nDataset Shape:")
 print(df.shape)
 
-# Check analysis date range
 print("\nDate Range:")
 print(df["date"].min(), "to", df["date"].max())
 
-# Count unique orders
 print("\nUnique Orders:")
 print(df["order_id"].nunique())
 
-# Quantity summary
 print("\nQuantity Summary:")
 print(df["qty"].describe())
 
-# Amount summary
 print("\nAmount Summary:")
 print(df["amount"].describe())
 
@@ -65,14 +95,9 @@ print((status_per_order > 1).sum())
 # Create one row per unique order
 order_status = df[["order_id", "status"]].drop_duplicates()
 
-# Count unique orders by status
 print("\nUnique Orders by Status:")
-print(
-    order_status["status"]
-    .value_counts()
-)
+print(order_status["status"].value_counts())
 
-# Calculate percentage of unique orders by status
 print("\nOrder Status Distribution (%):")
 print(
     order_status["status"]
@@ -81,16 +106,13 @@ print(
     .round(2)
 )
 
-# Compare recorded amount by order status
+# Compare recorded amount by status
 status_amount_analysis = (
     df.groupby("status")
     .agg(
         records=("order_id", "size"),
         amount_count=("amount", "count"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        ),
+        recorded_amount=("amount", sum_min1),
         average_recorded_amount=("amount", "mean")
     )
     .sort_values("recorded_amount", ascending=False)
@@ -104,18 +126,16 @@ print(status_amount_analysis.round(2))
 # Sales Performance Analysis
 # -------------------------
 
-# Total recorded amount across all records
 total_recorded_amount = df["amount"].sum()
 
-# Create a subset for non-cancelled records
+# Non-cancelled includes every status except "Cancelled",
+# including returned, failed, pending, and other non-final statuses.
 non_cancelled_df = df[
     df["status"] != "Cancelled"
 ].copy()
 
-# Total recorded amount excluding cancelled records
 non_cancelled_amount = non_cancelled_df["amount"].sum()
 
-# Recorded amount from explicitly delivered records
 explicitly_delivered_amount = df.loc[
     df["status"] == "Shipped - Delivered to Buyer",
     "amount"
@@ -131,87 +151,81 @@ print("\nExplicitly Delivered Recorded Amount:")
 print(round(explicitly_delivered_amount, 2))
 
 
-
 # -------------------------
 # Category Analysis
 # -------------------------
 
-# Analyze category performance using non-cancelled records
 category_analysis = (
     summarize(non_cancelled_df, "category")
     .sort_values("recorded_amount", ascending=False)
 )
 
-print("\nCategory Performance:")
-print(category_analysis.round(2).to_string(index=False))
+show("Category Performance", category_analysis)
 
 
 # -------------------------
 # Sales Trends Over Time
 # -------------------------
 
-# Extract year-month from the date column for monthly analysis
 non_cancelled_df["month"] = (
     non_cancelled_df["date"]
     .dt.to_period("M")
     .astype(str)
 )
 
-# Aggregate non-cancelled orders, quantity, and amount by month
-monthly_trends = (
-    non_cancelled_df.groupby("month")
-    .agg(
-        unique_orders=("order_id", "nunique"),
-        total_quantity=("qty", "sum"),
-        recorded_amount=(
-            "amount",
-            lambda x: x.sum(min_count=1)
-        )
-    )
-    .reset_index()
-)
+monthly_trends = summarize(non_cancelled_df, "month")
 
-print("\nMonthly Non-Cancelled Trends:")
-print(monthly_trends)
-
-# Check date coverage within each month
-print("\nMonthly Date Coverage:")
-print(
+days_covered = (
     non_cancelled_df.groupby("month")["date"]
-    .agg(["min", "max", "nunique"])
+    .nunique()
 )
 
-# Compare complete months only
-complete_months = monthly_trends[
-    monthly_trends["month"].isin(["2022-04", "2022-05"])
+monthly_trends["days_covered"] = (
+    monthly_trends["month"].map(days_covered)
+)
+
+monthly_trends["orders_per_day"] = (
+    monthly_trends["unique_orders"]
+    / monthly_trends["days_covered"]
+)
+
+monthly_trends["recorded_amount_per_day"] = (
+    monthly_trends["recorded_amount"]
+    / monthly_trends["days_covered"]
+)
+
+show("Monthly Non-Cancelled Trends", monthly_trends)
+
+# Use months with enough date coverage
+comparable_months = monthly_trends[
+    monthly_trends["days_covered"] >= 28
 ].copy()
 
-complete_months["orders_change_pct"] = (
-    complete_months["unique_orders"]
+comparable_months["orders_per_day_change_pct"] = (
+    comparable_months["orders_per_day"]
     .pct_change()
     .mul(100)
 )
 
-complete_months["amount_change_pct"] = (
-    complete_months["recorded_amount"]
+comparable_months["amount_per_day_change_pct"] = (
+    comparable_months["recorded_amount_per_day"]
     .pct_change()
     .mul(100)
 )
 
-print("\nComplete Month Comparison:")
-print(complete_months.round(2))
-
-# Calculate average recorded amount per unique order
-complete_months["average_recorded_amount_per_order"] = (
-    complete_months["recorded_amount"]
-    / complete_months["unique_orders"]
-)
-
-print("\nAverage Recorded Amount per Order:")
-print(
-    complete_months[
-        ["month", "average_recorded_amount_per_order"] 
-        ].round(2)
+show(
+    "Comparable Monthly Trends",
+    comparable_months[
+        [
+            "month",
+            "days_covered",
+            "orders_per_day",
+            "recorded_amount_per_day",
+            "average_recorded_amount_per_order",
+            "orders_per_day_change_pct",
+            "amount_per_day_change_pct"
+        ]
+    ]
 )
 
 
@@ -219,7 +233,6 @@ print(
 # Quantity Analysis
 # -------------------------
 
-# Calculate total quantity for each non-cancelled order
 quantity_per_order = (
     non_cancelled_df.groupby("order_id")["qty"]
     .sum()
@@ -228,17 +241,9 @@ quantity_per_order = (
 print("\nQuantity per Order Summary:")
 print(quantity_per_order.describe())
 
-# Count single-unit and multi-unit orders
 single_unit_orders = (quantity_per_order == 1).sum()
 multi_unit_orders = (quantity_per_order > 1).sum()
 
-print("\nSingle-Unit Orders:")
-print(single_unit_orders)
-
-print("\nMulti-Unit Orders:")
-print(multi_unit_orders)
-
-# Calculate order quantity percentages
 single_unit_pct = (
     single_unit_orders
     / len(quantity_per_order)
@@ -251,6 +256,12 @@ multi_unit_pct = (
     * 100
 )
 
+print("\nSingle-Unit Orders:")
+print(single_unit_orders)
+
+print("\nMulti-Unit Orders:")
+print(multi_unit_orders)
+
 print("\nSingle-Unit Orders Percentage:")
 print(round(single_unit_pct, 2))
 
@@ -262,43 +273,30 @@ print(round(multi_unit_pct, 2))
 # B2B Analysis
 # -------------------------
 
-# Compare non-cancelled B2B and non-B2B orders
-b2b_analysis = summarize(non_cancelled_df, "b2b")
-
-# Calculate share of non-cancelled orders
-b2b_analysis["order_share_pct"] = (
-    b2b_analysis["unique_orders"]
-    / b2b_analysis["unique_orders"].sum()
-    * 100
+b2b_analysis = add_order_share(
+    summarize(non_cancelled_df, "b2b")
 )
 
-print("\nNon-Cancelled B2B Performance:")
-print(b2b_analysis.round(2).to_string(index=False))
+show(
+    "Non-Cancelled B2B Performance",
+    b2b_analysis
+)
 
 
 # -------------------------
 # Fulfilment Analysis
 # -------------------------
 
-# Compare non-cancelled activity by fulfilment method
-fulfilment_analysis = summarize(
-    non_cancelled_df,
-    "fulfilment"
+fulfilment_analysis = add_order_share(
+    summarize(non_cancelled_df, "fulfilment")
 )
 
-# Calculate share of non-cancelled orders
-fulfilment_analysis["order_share_pct"] = (
-    fulfilment_analysis["unique_orders"]
-    / fulfilment_analysis["unique_orders"].sum()
-    * 100
+show(
+    "Non-Cancelled Fulfilment Performance",
+    fulfilment_analysis
 )
 
-print("\nNon-Cancelled Fulfilment Performance:")
-print(
-    fulfilment_analysis.round(2).to_string(index=False)
-)
-
-# Check how order status differs by fulfilment method
+# Check status differences by fulfilment using record counts
 print("\nFulfilment by Status (Record Counts):")
 print(
     pd.crosstab(
@@ -307,63 +305,34 @@ print(
     )
 )
 
-
-# -------------------------
-# Geographic Analysis
-# -------------------------
-
-# Prepare geographic data from non-cancelled records
-geo_df = non_cancelled_df.copy()
-
-# Standardize geographic values
-geo_df["ship_state"] = (
-    geo_df["ship_state"]
-    .str.strip()
-    .str.upper()
+# Calculate cancellation rate using unique orders
+order_fulfilment = (
+    df[["order_id", "fulfilment", "status"]]
+    .drop_duplicates()
 )
 
-geo_df["ship_city"] = (
-    geo_df["ship_city"]
-    .str.strip()
-    .str.upper()
+order_fulfilment["is_cancelled"] = (
+    order_fulfilment["status"] == "Cancelled"
 )
 
-# Remove unknown geographic values after standardization
-geo_df = geo_df[
-    (geo_df["ship_state"] != "UNKNOWN")
-    & (geo_df["ship_city"] != "UNKNOWN")
-].copy()
-
-# Analyze states
-state_analysis = summarize(
-    geo_df,
-    "ship_state",
-    include_quantity=False
+cancellation_by_fulfilment = (
+    order_fulfilment.groupby("fulfilment")
+    .agg(
+        total_orders=("order_id", "nunique"),
+        cancelled_orders=("is_cancelled", "sum")
+    )
+    .reset_index()
 )
 
-print("\nTop 10 States:")
-print(
-    state_analysis
-    .sort_values("unique_orders", ascending=False)
-    .head(10)
-    .round(2)
-    .to_string(index=False)
+cancellation_by_fulfilment["cancellation_rate_pct"] = (
+    cancellation_by_fulfilment["cancelled_orders"]
+    / cancellation_by_fulfilment["total_orders"]
+    * 100
 )
 
-# Analyze cities within states
-city_analysis = summarize(
-    geo_df,
-    ["ship_state", "ship_city"],
-    include_quantity=False
-)
-
-print("\nTop 10 Cities:")
-print(
-    city_analysis
-    .sort_values("unique_orders", ascending=False)
-    .head(10)
-    .round(2)
-    .to_string(index=False)
+show(
+    "Cancellation Rate by Fulfilment",
+    cancellation_by_fulfilment
 )
 
 
@@ -371,13 +340,12 @@ print(
 # Promotion Analysis
 # -------------------------
 
-# Identify whether each order has at least one recorded promotion ID
+# Check whether each order has at least one Promotion ID
 order_promotion_status = (
     non_cancelled_df.groupby("order_id")["promotion_ids"]
     .apply(lambda x: (x != "No Promotion ID").any())
 )
 
-# Add the order-level promotion status to each record
 promotion_df = non_cancelled_df.copy()
 
 promotion_df["has_promotion_id"] = (
@@ -385,20 +353,10 @@ promotion_df["has_promotion_id"] = (
     .map(order_promotion_status)
 )
 
-# Compare orders by promotion ID availability
-promotion_analysis = summarize(
-    promotion_df,
-    "has_promotion_id"
+promotion_analysis = add_order_share(
+    summarize(promotion_df, "has_promotion_id")
 )
 
-# Calculate share of non-cancelled orders
-promotion_analysis["order_share_pct"] = (
-    promotion_analysis["unique_orders"]
-    / promotion_analysis["unique_orders"].sum()
-    * 100
-)
-
-# Make the labels easier to understand
 promotion_analysis["promotion_status"] = (
     promotion_analysis["has_promotion_id"]
     .map({
@@ -407,8 +365,8 @@ promotion_analysis["promotion_status"] = (
     })
 )
 
-print("\nPromotion Analysis:")
-print(
+show(
+    "Promotion Analysis",
     promotion_analysis[
         [
             "promotion_status",
@@ -419,8 +377,64 @@ print(
             "order_share_pct"
         ]
     ]
-    .round(2)
-    .to_string(index=False)
+)
+
+# Check relationship between Promotion ID and fulfilment
+promotion_orders = promotion_df.drop_duplicates("order_id")
+
+print("\nPromotion by Fulfilment:")
+print(
+    pd.crosstab(
+        promotion_orders["has_promotion_id"],
+        promotion_orders["fulfilment"]
+    )
+)
+
+
+# -------------------------
+# Geographic Analysis
+# -------------------------
+
+geo_df = non_cancelled_df.copy()
+
+# Standardize geographic values
+for col in ["ship_state", "ship_city"]:
+    geo_df[col] = (
+        geo_df[col]
+        .str.strip()
+        .str.upper()
+    )
+
+# Remove unknown geographic values
+geo_df = geo_df[
+    (geo_df["ship_state"] != "UNKNOWN")
+    & (geo_df["ship_city"] != "UNKNOWN")
+].copy()
+
+state_analysis = summarize(
+    geo_df,
+    "ship_state",
+    include_quantity=False
+)
+
+city_analysis = summarize(
+    geo_df,
+    ["ship_state", "ship_city"],
+    include_quantity=False
+)
+
+show(
+    "Top 10 States",
+    state_analysis
+    .sort_values("unique_orders", ascending=False)
+    .head(10)
+)
+
+show(
+    "Top 10 Cities",
+    city_analysis
+    .sort_values("unique_orders", ascending=False)
+    .head(10)
 )
 
 
@@ -428,7 +442,6 @@ print(
 # Correlation Analysis
 # -------------------------
 
-# Aggregate quantity and recorded amount by order
 order_correlation = (
     non_cancelled_df.groupby("order_id")
     .agg(
@@ -438,10 +451,10 @@ order_correlation = (
     .dropna()
 )
 
-# Calculate correlation between quantity and recorded amount
-quantity_amount_correlation = order_correlation[
-    "total_quantity"
-].corr(order_correlation["recorded_amount"])
+quantity_amount_correlation = (
+    order_correlation["total_quantity"]
+    .corr(order_correlation["recorded_amount"])
+)
 
 print("\nQuantity and Recorded Amount Correlation:")
 print(round(quantity_amount_correlation, 3))
@@ -451,18 +464,15 @@ print(round(quantity_amount_correlation, 3))
 # Outlier Analysis
 # -------------------------
 
-# Calculate IQR for recorded amount per order
 q1 = order_correlation["recorded_amount"].quantile(0.25)
 q3 = order_correlation["recorded_amount"].quantile(0.75)
 iqr = q3 - q1
 
-# Calculate upper threshold for high-value outliers
 upper_bound = q3 + (1.5 * iqr)
 
 print("\nHigh Recorded Amount Outlier Threshold:")
 print(round(upper_bound, 2))
 
-# Identify high recorded amount outliers
 high_amount_outliers = order_correlation[
     order_correlation["recorded_amount"] > upper_bound
 ]
@@ -470,7 +480,6 @@ high_amount_outliers = order_correlation[
 print("\nHigh Recorded Amount Outliers:")
 print(len(high_amount_outliers))
 
-# Display top 10 orders by recorded amount
 print("\nTop 10 Orders by Recorded Amount:")
 print(
     order_correlation
@@ -479,13 +488,34 @@ print(
     .round(2)
 )
 
-# Display top 10 orders by quantity
 print("\nTop 10 Orders by Quantity:")
 print(
     order_correlation
     .sort_values("total_quantity", ascending=False)
     .head(10)
 )
+
+# Calculate recorded amount per unit
+order_correlation["amount_per_unit"] = (
+    order_correlation["recorded_amount"]
+    / order_correlation["total_quantity"]
+)
+
+print("\nAmount per Unit Summary:")
+print(
+    order_correlation["amount_per_unit"]
+    .describe()
+    .round(2)
+)
+
+# Count records with zero recorded amount
+zero_amount_records = (
+    non_cancelled_df["amount"] == 0
+).sum()
+
+print("\nZero Recorded Amount Records:")
+print(zero_amount_records)
+
 
 # -------------------------
 # Validation Checks
