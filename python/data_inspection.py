@@ -35,6 +35,9 @@ duplicate_check = raw_df.drop(columns=["index", "Unnamed: 22"])
 print("\nDuplicates:")
 print(duplicate_check.duplicated().sum())
 
+print("\nCurrency Values:")
+print(raw_df["currency"].value_counts(dropna=False))
+
 
 # -------------------------
 # Amount Investigation
