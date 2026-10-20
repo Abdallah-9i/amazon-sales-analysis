@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "eb20005655741c7be607",
   "position": {
-    "x": 1487.9118880412268,
-    "y": 186.2476633153135,
+    "x": 1574.4050268359733,
+    "y": 162.86948553475585,
     "z": 16,
-    "height": 155.20638609609458,
-    "width": 432.50846258778358,
+    "height": 133.91491032857704,
+    "width": 343.83558057337348,
     "tabOrder": 16
   },
   "visual": {
@@ -23,11 +23,12 @@
                       "Entity": "sales"
                     }
                   },
-                  "Property": "Avg Recorded Amount per Order"
+                  "Property": "Avg Order Value (₹)"
                 }
               },
               "queryRef": "sales.Avg Recorded Amount per Order",
-              "nativeQueryRef": "Avg Recorded Amount per Order"
+              "nativeQueryRef": "Avg Order Value (₹)",
+              "displayName": "Avg Order Value (₹)"
             }
           ]
         }
@@ -42,7 +43,7 @@
                     "Entity": "sales"
                   }
                 },
-                "Property": "Avg Recorded Amount per Order"
+                "Property": "Avg Order Value (₹)"
               }
             },
             "direction": "Descending"
@@ -116,7 +117,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "16D"
                 }
               }
             }
@@ -140,7 +141,7 @@
                 "Entity": "sales"
               }
             },
-            "Property": "Avg Recorded Amount per Order"
+            "Property": "Avg Order Value (₹)"
           }
         },
         "type": "Advanced"

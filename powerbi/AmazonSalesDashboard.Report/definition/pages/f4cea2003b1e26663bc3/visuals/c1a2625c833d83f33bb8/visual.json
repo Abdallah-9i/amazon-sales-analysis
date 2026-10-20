@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "c1a2625c833d83f33bb8",
   "position": {
-    "x": 1009.8762188652554,
-    "y": 186.2476633153135,
+    "x": 1165.4216520486975,
+    "y": 161.05982458436969,
     "z": 2,
-    "height": 155.20638609609458,
-    "width": 455.27206588187744,
+    "height": 135.72457127896323,
+    "width": 394.50608718418641,
     "tabOrder": 2
   },
   "visual": {
@@ -23,11 +23,12 @@
                       "Entity": "sales"
                     }
                   },
-                  "Property": "Recorded Amount"
+                  "Property": "Recorded Amount (₹, Excl. Cancelled)"
                 }
               },
               "queryRef": "sales.Recorded Amount",
-              "nativeQueryRef": "Recorded Amount",
+              "nativeQueryRef": "Recorded Amount (₹, Excl. Cancelled)",
+              "displayName": "Recorded Amount (₹, Excl. Cancelled)",
               "format": "0.00"
             }
           ]
@@ -43,7 +44,7 @@
                     "Entity": "sales"
                   }
                 },
-                "Property": "Recorded Amount"
+                "Property": "Recorded Amount (₹, Excl. Cancelled)"
               }
             },
             "direction": "Descending"
@@ -117,7 +118,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "20D"
+                  "Value": "16D"
                 }
               }
             }
@@ -141,7 +142,7 @@
                 "Entity": "sales"
               }
             },
-            "Property": "Recorded Amount"
+            "Property": "Recorded Amount (₹, Excl. Cancelled)"
           }
         },
         "type": "Advanced"

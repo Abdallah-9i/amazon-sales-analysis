@@ -2,8 +2,8 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "f7613257997fd86b9986",
   "position": {
-    "x": 1535.5085131106957,
-    "y": 93.123831657656751,
+    "x": 1535.5111475904118,
+    "y": 67.924755858557091,
     "z": 12,
     "height": 70.360228363562882,
     "width": 384.91183751831454,
@@ -23,11 +23,11 @@
                       "Entity": "sales"
                     }
                   },
-                  "Property": "status"
+                  "Property": "Status Group"
                 }
               },
-              "queryRef": "sales.status",
-              "nativeQueryRef": "status",
+              "queryRef": "sales.Status Group",
+              "nativeQueryRef": "Status Group",
               "active": true
             }
           ]
@@ -138,6 +138,11 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {}
+        }
       ]
     },
     "drillFilterOtherVisuals": true
@@ -145,7 +150,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "5ee2ae9a6b9bed4cc728",
+        "name": "f2c5e0d32110d6421a6f",
         "field": {
           "Column": {
             "Expression": {
@@ -153,7 +158,7 @@
                 "Entity": "sales"
               }
             },
-            "Property": "status"
+            "Property": "Status Group"
           }
         },
         "type": "Categorical"

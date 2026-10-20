@@ -14,26 +14,75 @@ table sales
 		formatString: #,0
 		lineageTag: b46d799a-5fec-444f-b4a8-0873947e7f8f
 
-	measure 'Recorded Amount' =
+	measure 'Recorded Amount (₹, Excl. Cancelled)' =
 			
 			CALCULATE(
 			    SUM(sales[amount]),
 			    sales[status] <> "Cancelled"
 			)
-		formatString: #,0
 		lineageTag: 57a0b46c-6d1b-4f94-8e3d-12a86044f9b0
 
-		annotation PBI_FormatHint = {"isDecimal":true}
+		formatStringDefinition = "₹#,0"
 
-	measure 'Avg Recorded Amount per Order' =
+	measure 'Avg Order Value (₹)' =
 			
 			DIVIDE(
-			    [Recorded Amount],
+			    [Recorded Amount (₹, Excl. Cancelled)],
 			    [Non-Cancelled Orders]
 			)
 		lineageTag: 019c9cd9-789e-4ed1-8cf1-3cac2d1510f8
 
+		formatStringDefinition = "₹#,0.00"
+
+	measure 'Cancelled Orders' =
+			
+			CALCULATE(
+			    [Unique Orders],
+			    sales[status] = "Cancelled"
+			)
+		formatString: 0
+		lineageTag: 5c032e89-6063-4e9f-aff1-2daa38d45592
+
+	measure 'Cancellation Rate' =
+			
+			DIVIDE(
+			    [Cancelled Orders],
+			    [Unique Orders]
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a0a42bea-a5dc-47ba-bf1b-87915203ccc4
+
+	measure 'Recorded Amount per Day' =
+			
+			DIVIDE(
+			    [Recorded Amount (₹, Excl. Cancelled)],
+			    DISTINCTCOUNT(sales[date])
+			)
+		lineageTag: 81e45e06-17fa-42ca-82a5-12a7b47c9a0e
+
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Orders per Day' =
+			
+			DIVIDE(
+			    [Non-Cancelled Orders],
+			    DISTINCTCOUNT(sales[date])
+			)
+		lineageTag: 03b7e637-d08d-4777-a34b-3900029c0afc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cancellation Rate by Fulfilment' =
+			
+			DIVIDE(
+			    CALCULATE(
+			        [Unique Orders],
+			        sales[status] = "Cancelled"
+			    ),
+			    [Unique Orders]
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 169cf45b-016c-47bf-aa03-019b95c8a6df
 
 	column order_id
 		dataType: string
@@ -220,6 +269,47 @@ table sales
 		lineageTag: 2f6b82f8-7ceb-4f73-92c9-3959c80c86e1
 		summarizeBy: none
 		sourceColumn: fulfilled_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Status Group' =
+			
+			SWITCH(
+			    TRUE(),
+			
+			    sales[status] = "Shipped - Delivered to Buyer",
+			        "Delivered",
+			
+			    sales[status] = "Cancelled",
+			        "Cancelled",
+			
+			    sales[status] IN {
+			        "Shipped - Returned to Seller",
+			        "Shipped - Returning to Seller",
+			        "Shipped - Rejected by Buyer",
+			        "Shipped - Lost in Transit",
+			        "Shipped - Damaged"
+			    },
+			        "Returned / Failed",
+			
+			    sales[status] IN {
+			        "Pending",
+			        "Pending - Waiting for Pick Up"
+			    },
+			        "Pending",
+			
+			    sales[status] IN {
+			        "Shipped",
+			        "Shipped - Picked Up",
+			        "Shipped - Out for Delivery",
+			        "Shipping"
+			    },
+			        "Shipped / In Transit",
+			
+			    "Other"
+			)
+		lineageTag: 16c7e2d4-7e8f-45c4-9f9d-c857897bd97c
+		summarizeBy: none
 
 		annotation SummarizationSetBy = Automatic
 

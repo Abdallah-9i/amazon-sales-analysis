@@ -2,8 +2,8 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "d350849c76cb06ed7288",
   "position": {
-    "x": 1086.4447026726621,
-    "y": 93.123831657656751,
+    "x": 1086.7960937369135,
+    "y": 67.924755858557091,
     "z": 11,
     "height": 70.360228363562882,
     "width": 401.46718536856463,
@@ -131,6 +131,13 @@
                       "Value": "'#F3F4F6'"
                     }
                   }
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Fulfilment'"
                 }
               }
             }
