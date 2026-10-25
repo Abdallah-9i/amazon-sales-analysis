@@ -33,7 +33,7 @@ The goal is to uncover trends in product performance, order behavior, fulfilment
 
 ## Tools
 
-To clean, analyze and visualize the data this project will use the follwong tools:
+The following tools were used to clean, analyze, and visualize the data:
 - Python
 - SQL
 - Power BI
@@ -123,16 +123,6 @@ The full dataset was used for order-status analysis, while non-cancelled records
 - Quantity and Recorded Amount show a **moderate positive correlation of 0.57**.
 - High-value outliers were reviewed using the IQR method. Many high-value orders also contained multiple units, and the amount-per-unit distribution did not provide evidence that these orders were obvious data errors, so the outliers were retained.
 
-### Notes
-
-- `Recorded Amount` should not be interpreted as confirmed revenue or net sales.
-- The non-cancelled population includes returned, pending, failed, and other non-final order statuses.
-- `No Promotion ID Recorded` does not necessarily mean that no promotion was applied.
-- Promotion ID usage is strongly associated with fulfilment method, so observed differences should not be interpreted as causal.
-- Correlation indicates association, not causation.
-- March contains only one day of data, while June contains 29 days; monthly comparisons therefore use daily averages for months with at least 28 days of coverage.
-- The final day in the dataset (**29 June**) shows an unusually low order count and may represent a partial data extract, so end-of-period daily trends should be interpreted with caution.
-
 ## SQL Analysis
 
 SQL analysis was performed using PostgreSQL on the cleaned dataset to extend the Python EDA and apply database querying techniques such as CTEs, joins, conditional logic, ranking, and window functions.
@@ -150,12 +140,23 @@ Non-cancelled orders were used as the main population for the SQL analysis. The 
 - Maharashtra was the leading state by Recorded Amount for **6 of the 9 product categories**. `Blouse` was led by Karnataka, `Saree` by Tamil Nadu, and `Dupatta` by Telangana.
 - The running total of non-cancelled Recorded Amount reached **₹71.67M**, matching the result calculated during the Python analysis and providing an additional validation check.
 
-### Notes
+## Recommendations
 
-- SQL analysis primarily uses **non-cancelled orders** unless otherwise stated.
-- `Recorded Amount` should not be interpreted as confirmed revenue or net sales.
-- `No Promotion ID Recorded` does not necessarily mean no promotion was applied.
-- Promotion ID usage is strongly associated with fulfilment method, so observed differences should not be interpreted as causal.
-- Order value segmentation thresholds were derived from quartiles calculated during the Python EDA rather than selected arbitrarily.
-- March and June are partial months in the dataset, so raw monthly totals should not be interpreted as directly comparable full-month performance.
-- Geographic labels were normalized for capitalization and whitespace in SQL, but some spelling and abbreviation variants may still remain.
+Based on the findings, the data suggests the following areas for further attention:
+
+- **Focus on top categories:** `Set` and `kurta` contribute approximately **76.95%** of non-cancelled Recorded Amount, so maintaining product availability and evaluating marketing opportunities for these categories may have the greatest potential business impact.
+- **Review Merchant fulfilment:** Merchant-fulfilled orders have a higher cancellation rate (**17.54%**) than Amazon-fulfilled orders (**12.86%**). Potential causes such as inventory availability, processing time, and fulfilment operations warrant further investigation.
+- **Investigate the order volume decline:** Daily order volume declined from April to June while average Recorded Amount per order remained relatively stable, suggesting that the decline was driven mainly by fewer orders rather than lower-value orders.
+- **Explore B2B further:** B2B represents only **0.71%** of non-cancelled orders but has a higher average Recorded Amount per order (**₹768.41**) than non-B2B orders (**₹694.01**). This segment warrants further investigation despite its small current share.
+- **Consider regional differences:** Maharashtra leads overall, while Karnataka, Tamil Nadu, and Telangana lead specific categories such as `Blouse`, `Saree`, and `Dupatta`. These differences may help guide more targeted regional analysis.
+
+## Limitations
+
+- `Recorded Amount` should not be interpreted as confirmed revenue or net sales. The non-cancelled population includes returned, pending, failed, and other non-final order statuses.
+- `No Promotion ID Recorded` does not necessarily mean that no promotion was applied. Promotion ID usage is strongly associated with fulfilment method, so observed differences should not be interpreted as causal.
+- Correlation indicates association, not causation.
+- March contains only one day of data, while June ends on June 29. The final day also shows an unusually low order count and may represent a partial data extract, so monthly and end-of-period trends should be interpreted with caution.
+- **7,795 records** in the raw dataset have missing `Amount` and `currency` values. These values were retained as null because their true values were unknown.
+- Geographic labels were normalized for capitalization and whitespace, but some spelling and abbreviation variants may still remain.
+- The dataset covers approximately three months, so longer-term trends and seasonality cannot be reliably assessed.
+
