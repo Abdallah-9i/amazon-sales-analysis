@@ -1,24 +1,35 @@
-# amazon-sales-analysis
+# Amazon Sales Analysis
 
-## Project overview
-This project is an end-to-end data analytics project focused on analysis Amazon sales data.
+> Status: In Progress
 
-## Project Goal
-The goal of this project is to analyze Amazon sales data to identify sales patterns, product performance, and potential business opportunities.
+## Key Highlights
 
-## Business Problem
+- Analyzed **128,969 records** representing **120,378 unique orders**.
+- `Set` and `kurta` together account for approximately **76.95%** of non-cancelled Recorded Amount.
+- Merchant-fulfilled orders have a higher cancellation rate (**17.54%**) than Amazon-fulfilled orders (**12.86%**).
+- Daily order volume declined from April to June, while average Recorded Amount per order remained relatively stable at around **₹670–₹710**.
 
-The purpose of this analysis is to understand Amazon sales performance
-and identify patterns that can support business decisions.
+## Project Overview
+
+This project is an end-to-end data analytics project focused on analyzing Amazon sales data to understand overall sales performance, identify patterns in customer orders and product categories, and evaluate key business metrics.
+
+The goal is to uncover trends in product performance, order behavior, fulfilment methods, cancellations, promotions, and geographic performance that can support data-driven business decisions and highlight potential business opportunities.
 
 ## Business Questions
 
-- Which product categories perform the best?
-- Which products perform the best and worst?
-- How does product performance change over time?
-- Is there a relationship between product price and sales performance?
-- Is there a relationship between product ratings and sales performance?
-- What patterns or opportunities can be identified from the data?
+- Which product categories generate the highest Recorded Amount?
+- How does order activity change over time?
+- How do cancellation rates differ by fulfilment method?
+- How does geographic performance vary across states and cities?
+- How does promotion usage relate to order value and fulfilment method?
+- What patterns can be identified in order quantity and order value?
+
+## Dataset
+
+- **Source:** [E-Commerce Sales Dataset - Kaggle](https://www.kaggle.com/datasets/thedevastator/unlock-profits-with-e-commerce-sales-data/data)
+- **Raw Size:** 128,975 rows and 24 columns
+- **Period:** March 31, 2022 to June 29, 2022
+- **Currency:** INR (Indian Rupees)
 
 ## Tools
 
@@ -26,7 +37,6 @@ To clean, analyze and visualize the data this project will use the follwong tool
 - Python
 - SQL
 - Power BI
-- Excel
 - Git & Github
 
 ## Data Inspection
