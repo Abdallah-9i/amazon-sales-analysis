@@ -95,6 +95,36 @@ clean_df["courier_status"] = clean_df["courier_status"].fillna("Unknown")
 
 
 # -------------------------
+# Standardize Text Values
+# -------------------------
+
+# Standardize city and state values
+for col in ["ship_city", "ship_state"]:
+    clean_df[col] = (
+        clean_df[col]
+        .str.strip()
+        .str.upper()
+    )
+
+# Standardize category values
+clean_df["category"] = (
+    clean_df["category"]
+    .str.strip()
+    .str.title()
+)
+
+
+# -------------------------
+# Create Derived Columns
+# -------------------------
+
+# Create a combined city-state field for geographic analysis
+clean_df["city_state"] = (
+    clean_df["ship_city"] + ", " + clean_df["ship_state"]
+)
+
+
+# -------------------------
 # Final Validation
 # -------------------------
 
