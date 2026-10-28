@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "5e5efced0946582e580d",
   "position": {
-    "x": 1225.1404634114413,
-    "y": 301.1177999496939,
+    "x": 6.1749778053233726,
+    "y": 162.60774887351548,
     "z": 0,
-    "height": 778.8822000503061,
-    "width": 694.40026829881788,
+    "height": 440.48175011306722,
+    "width": 979.7631451113084,
     "tabOrder": 0
   },
   "visual": {
@@ -93,20 +93,7 @@
       ],
       "dataPoint": [
         {
-          "properties": {
-            "fill": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "ThemeDataColor": {
-                      "ColorId": 3,
-                      "Percent": 0.2
-                    }
-                  }
-                }
-              }
-            }
-          }
+          "properties": {}
         },
         {
           "properties": {
@@ -156,9 +143,8 @@
               "solid": {
                 "color": {
                   "expr": {
-                    "ThemeDataColor": {
-                      "ColorId": 3,
-                      "Percent": -0.25
+                    "Literal": {
+                      "Value": "'#16A34A'"
                     }
                   }
                 }
@@ -199,8 +185,8 @@
                 "color": {
                   "expr": {
                     "ThemeDataColor": {
-                      "ColorId": 4,
-                      "Percent": 0
+                      "ColorId": 9,
+                      "Percent": -0.5
                     }
                   }
                 }
@@ -285,7 +271,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Unique Orders by Status Group'"
+                  "Value": "'Unique Orders by Status Group (All Orders)'"
                 }
               }
             }
@@ -333,11 +319,36 @@
                   "Value": "2D"
                 }
               }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
             }
           }
         }
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "a63022017c5f018a34ee",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "sales"
+              }
+            },
+            "Property": "Unique Orders"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

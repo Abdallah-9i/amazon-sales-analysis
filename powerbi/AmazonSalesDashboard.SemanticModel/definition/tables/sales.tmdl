@@ -313,11 +313,19 @@ table sales
 
 		annotation SummarizationSetBy = Automatic
 
+	column city_state
+		dataType: string
+		lineageTag: ce890216-1a54-4980-b48a-c457c1cb25a8
+		summarizeBy: none
+		sourceColumn: city_state
+
+		annotation SummarizationSetBy = Automatic
+
 	partition sales = m
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\tmsaf\OneDrive\سطح المكتب\amazon-sales-analysis-1\data\cleaned\amazon_sales_cleaned.csv"),[Delimiter=",", Columns=22, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("C:\Users\tmsaf\OneDrive\سطح المكتب\amazon-sales-analysis-1\data\cleaned\amazon_sales_cleaned.csv"),[Delimiter=",", Columns=23, Encoding=1252, QuoteStyle=QuoteStyle.None]),
 				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
 				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"order_id", type text}, {"date", type date}, {"status", type text}, {"fulfilment", type text}, {"sales_channel", type text}, {"ship_service_level", type text}, {"style", type text}, {"sku", type text}, {"category", type text}, {"size", type text}, {"asin", type text}, {"courier_status", type text}, {"qty", Int64.Type}, {"currency", type text}, {"amount", type number}, {"ship_city", type text}, {"ship_state", type text}, {"ship_postal_code", type text}, {"ship_country", type text}, {"promotion_ids", type text}, {"b2b", type logical}, {"fulfilled_by", type text}})
 				in

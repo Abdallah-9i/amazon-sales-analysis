@@ -243,6 +243,11 @@
         }
       ]
     },
+    "syncGroup": {
+      "groupName": "fulfilment",
+      "fieldChanges": true,
+      "filterChanges": true
+    },
     "drillFilterOtherVisuals": true
   },
   "filterConfig": {

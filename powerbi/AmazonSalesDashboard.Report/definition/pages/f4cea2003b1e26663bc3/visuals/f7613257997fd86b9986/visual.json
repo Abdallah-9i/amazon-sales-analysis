@@ -145,6 +145,11 @@
         }
       ]
     },
+    "syncGroup": {
+      "groupName": "Status Group",
+      "fieldChanges": true,
+      "filterChanges": true
+    },
     "drillFilterOtherVisuals": true
   },
   "filterConfig": {
