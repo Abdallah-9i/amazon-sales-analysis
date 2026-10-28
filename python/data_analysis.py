@@ -1,14 +1,18 @@
 import pandas as pd
+from pathlib import Path
 
+BASE = Path(__file__).resolve().parent.parent
+cleaned_path = BASE / "data" / "cleaned" / "amazon_sales_cleaned.csv"
 
 # -------------------------
 # Load Cleaned Dataset
 # -------------------------
 
 df = pd.read_csv(
-    "../data/cleaned/amazon_sales_cleaned.csv",
+    cleaned_path,
     parse_dates=["date"]
 )
+
 # -------------------------
 # Helper Functions
 # -------------------------
@@ -113,7 +117,7 @@ status_amount_analysis = (
         records=("order_id", "size"),
         amount_count=("amount", "count"),
         recorded_amount=("amount", sum_min1),
-        average_recorded_amount=("amount", "mean")
+        average_recorded_amount_per_record=("amount", "mean")
     )
     .sort_values("recorded_amount", ascending=False)
 )
@@ -395,21 +399,13 @@ print(
 # Geographic Analysis
 # -------------------------
 
-geo_df = non_cancelled_df.copy()
-
-# Standardize geographic values
-for col in ["ship_state", "ship_city"]:
-    geo_df[col] = (
-        geo_df[col]
-        .str.strip()
-        .str.upper()
-    )
-
-# Remove unknown geographic values
-geo_df = geo_df[
-    (geo_df["ship_state"] != "UNKNOWN")
-    & (geo_df["ship_city"] != "UNKNOWN")
+geo_df = non_cancelled_df[
+    (non_cancelled_df["ship_state"] != "UNKNOWN")
+    & (non_cancelled_df["ship_city"] != "UNKNOWN")
 ].copy()
+
+print("\nRows Removed (Unknown Location):")
+print(len(non_cancelled_df) - len(geo_df))
 
 state_analysis = summarize(
     geo_df,
@@ -419,7 +415,7 @@ state_analysis = summarize(
 
 city_analysis = summarize(
     geo_df,
-    ["ship_state", "ship_city"],
+    "city_state",
     include_quantity=False
 )
 
@@ -451,13 +447,21 @@ order_correlation = (
     .dropna()
 )
 
-quantity_amount_correlation = (
+pearson_correlation = (
     order_correlation["total_quantity"]
     .corr(order_correlation["recorded_amount"])
 )
 
-print("\nQuantity and Recorded Amount Correlation:")
-print(round(quantity_amount_correlation, 3))
+spearman_correlation = (
+    order_correlation["total_quantity"].rank()
+    .corr(order_correlation["recorded_amount"].rank())
+)
+
+print("\nPearson Correlation:")
+print(round(pearson_correlation, 3))
+
+print("\nSpearman Correlation:")
+print(round(spearman_correlation, 3))
 
 
 # -------------------------
@@ -524,3 +528,5 @@ print(zero_amount_records)
 assert (status_per_order > 1).sum() == 0
 assert df["order_id"].nunique() == 120378
 assert non_cancelled_df["order_id"].nunique() == 103193
+assert df.groupby("order_id")["fulfilment"].nunique().max() == 1
+assert df.groupby("order_id")["b2b"].nunique().max() == 1

@@ -1,4 +1,10 @@
 import pandas as pd
+from pathlib import Path
+
+BASE = Path(__file__).resolve().parent.parent
+
+raw_path = BASE / "data" / "raw" / "Amazon Sale Report.csv"
+out_path = BASE / "data" / "cleaned" / "amazon_sales_cleaned.csv"
 
 # -------------------------
 # Load Dataset
@@ -6,9 +12,10 @@ import pandas as pd
 
 # Load the raw dataset
 raw_df = pd.read_csv(
-    "../data/raw/Amazon Sale Report.csv",
+    raw_path,
     low_memory=False
 )
+
 # Create a copy for cleaning
 clean_df = raw_df.copy()
 
@@ -106,6 +113,9 @@ for col in ["ship_city", "ship_state"]:
         .str.upper()
     )
 
+# Keep Hyderabad state values as recorded because the correct state
+# cannot be confirmed from the available data.
+
 # Standardize known state naming variants
 state_mapping = {
     "NEW DELHI": "DELHI",
@@ -165,12 +175,18 @@ print(clean_df.dtypes)
 print("\nCleaned Data Preview:")
 print(clean_df.head())
 
+assert clean_df.shape == (128969, 23)
+assert clean_df.duplicated().sum() == 0
+assert clean_df["date"].notna().all()
+assert clean_df["order_id"].nunique() == 120378
+assert set(clean_df.columns[clean_df.isnull().any()]) == {"amount", "currency"}
+
 # -------------------------
 # Save Cleaned Dataset
 # -------------------------
 
 clean_df.to_csv(
-    "../data/cleaned/amazon_sales_cleaned.csv",
+    out_path,
     index=False
 )
 
