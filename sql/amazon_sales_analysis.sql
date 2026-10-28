@@ -1,21 +1,27 @@
 -- Data validation
-SELECT COUNT(*)
+
+SELECT
+    COUNT(*) AS total_rows,
+    COUNT(DISTINCT order_id) AS unique_orders,
+    COUNT(DISTINCT order_id)
+        FILTER (WHERE status <> 'Cancelled') AS non_cancelled_orders,
+    SUM(amount)
+        FILTER (WHERE status <> 'Cancelled') AS non_cancelled_amount
 FROM sales;
 
--- 1 Top category by state
+-- 1. Top category by state
 
 WITH state_category AS (
     SELECT
-        UPPER(TRIM(ship_state)) AS ship_state,
+        ship_state,
         category,
         COUNT(DISTINCT order_id) AS unique_orders,
         SUM(amount) AS recorded_amount
     FROM sales
     WHERE status <> 'Cancelled'
-      AND ship_state IS NOT NULL
-      AND UPPER(TRIM(ship_state)) <> 'UNKNOWN'
+      AND ship_state <> 'UNKNOWN'
     GROUP BY
-        UPPER(TRIM(ship_state)),
+        ship_state,
         category
 ),
 
@@ -27,7 +33,7 @@ ranked_categories AS (
         recorded_amount,
         RANK() OVER (
             PARTITION BY ship_state
-            ORDER BY recorded_amount DESC
+            ORDER BY recorded_amount DESC NULLS LAST
         ) AS category_rank
     FROM state_category
 )
@@ -39,7 +45,7 @@ SELECT
     recorded_amount
 FROM ranked_categories
 WHERE category_rank = 1
-ORDER BY recorded_amount DESC;
+ORDER BY recorded_amount DESC NULLS LAST;
 
 -- 2. Promotion usage by fulfilment method
 
@@ -129,19 +135,18 @@ ORDER BY recorded_amount DESC;
 WITH ranked_states AS (
     SELECT
         category,
-        UPPER(TRIM(ship_state)) AS ship_state,
+        ship_state,
         SUM(amount) AS recorded_amount,
         RANK() OVER (
             PARTITION BY category
-            ORDER BY SUM(amount) DESC
+            ORDER BY SUM(amount) DESC NULLS LAST
         ) AS state_rank
     FROM sales
     WHERE status <> 'Cancelled'
-      AND ship_state IS NOT NULL
-      AND UPPER(TRIM(ship_state)) <> 'UNKNOWN'
+      AND ship_state <> 'UNKNOWN'
     GROUP BY
         category,
-        UPPER(TRIM(ship_state))
+        ship_state
 )
 
 SELECT
@@ -150,7 +155,7 @@ SELECT
     recorded_amount
 FROM ranked_states
 WHERE state_rank = 1
-ORDER BY recorded_amount DESC;
+ORDER BY recorded_amount DESC NULLS LAST;
 
 -- 6. Running total of recorded amount over time
 
