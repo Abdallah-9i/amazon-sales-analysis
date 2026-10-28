@@ -106,6 +106,22 @@ for col in ["ship_city", "ship_state"]:
         .str.upper()
     )
 
+# Standardize known state naming variants
+state_mapping = {
+    "NEW DELHI": "DELHI",
+    "AR": "ARUNACHAL PRADESH",
+    "NL": "NAGALAND",
+    "PB": "PUNJAB",
+    "RJ": "RAJASTHAN",
+    "ORISSA": "ODISHA",
+    "PONDICHERRY": "PUDUCHERRY",
+    "RAJSHTHAN": "RAJASTHAN",
+    "RAJSTHAN": "RAJASTHAN",
+    "PUNJAB/MOHALI/ZIRAKPUR": "PUNJAB"
+}
+
+clean_df["ship_state"] = clean_df["ship_state"].replace(state_mapping)
+
 # Standardize category values
 clean_df["category"] = (
     clean_df["category"]
