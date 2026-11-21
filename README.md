@@ -3,7 +3,7 @@
 
 ## Dashboard Preview
 
-### [View the Interactive Power BI Dashboard] (https://app.powerbi.com/view?r=eyJrIjoiOTljMjBiYWMtM2E5MC00YjczLTgxNTQtMWUzNDA2MWMyZDA2IiwidCI6Ijc5YTA1N2ZiLWIwZDUtNDRkZC04ZjkwLTBiZjcxNTFmNWMzZiIsImMiOjl9&language=en-US&pageName=d5178abc130cf5d05fec)
+### [View the Interactive Power BI Dashboard](https://app.powerbi.com/view?r=eyJrIjoiOTljMjBiYWMtM2E5MC00YjczLTgxNTQtMWUzNDA2MWMyZDA2IiwidCI6Ijc5YTA1N2ZiLWIwZDUtNDRkZC04ZjkwLTBiZjcxNTFmNWMzZiIsImMiOjl9&language=en-US&pageName=d5178abc130cf5d05fec)
 
 > Click the link above to interact with the dashboard, filters, and slicers.
 
